@@ -100,12 +100,12 @@ io.on("connection", function (socket) {
     if (userInfo !== undefined) {
       let channelName = "report";
       socket.broadcast.to(channelName).emit("msg_from_server_report", userInfo.name + "(" + userInfo.type + ")" + ': "' + msg + '"'
-        );
+      );
       socket.broadcast.to(channelName).emit("notification_from_server_manager", {
-          avatar: userInfo.photo_url,
-          title: userInfo.name,
-          subtitle: msg
-        });
+        avatar: userInfo.photo_url,
+        title: userInfo.name,
+        subtitle: msg
+      });
     }
   });
 });
