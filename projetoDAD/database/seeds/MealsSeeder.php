@@ -24,7 +24,7 @@ class MealsSeeder extends Seeder
 
         $faker = Faker\Factory::create('pt_PT');
 
-        $this->activeOrderStates = collect(['confirmed', 'in preparation', 'prepared.vue']);
+        $this->activeOrderStates = collect(['confirmed', 'in preparation', 'prepared']);
         
         $today = Carbon\Carbon::today();
         $day = Carbon\Carbon::today()->subDays($totalDays-1);  //Create meals for today also
