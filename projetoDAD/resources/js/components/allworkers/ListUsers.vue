@@ -198,6 +198,7 @@
                 console.log(user.id);
                 axios.delete("api/users/delete/" + user.id)
                     .then(response => {
+                        this.$socket.emit('user_deleted', response.data.data);
                         console.log('user deleted');
                         this.showSuccess = true;
                         this.successMessage = "UserResource Deleted";
@@ -272,6 +273,7 @@
                     .post("/api/users/upload", formData)
                     .then(response => {
                         // this.$toastr.s("All images uplaoded successfully");
+                        this.$socket.emit('user_changed', response.data.data);
                         Object.assign(this.users[this.editedIndex], this.editedUser);
                         this.initialize();
                         this.images = [];
@@ -288,6 +290,7 @@
                         .put("api/users/" + this.editedUser.id, this.editedUser)
                         .then(response => {
                             Object.assign(this.editedUser, response.data.data);
+                            this.$socket.emit('user_changed', response.data.data);
                         })
                         .catch(function (error) {
                             // handle error
@@ -301,6 +304,7 @@
                     axios.post("api/users/create", this.editedUser)
                         .then(response => {
                             //Object.assign(this.editedUser, response.data.data);
+                            this.$socket.emit('user_created', response.data.data);
                             console.log(response);
                             console.log(JSON.stringify({email: response.data.email}));
                             let email = {email: response.data.email};

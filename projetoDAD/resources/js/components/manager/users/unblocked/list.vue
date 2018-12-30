@@ -99,6 +99,7 @@
             blockUser(user){
                 axios.patch("api/user/block/" + user.id)
                     .then(response => {
+                        this.$socket.emit('user_blocked', response.data.data);
                         this.fetchUnblockedUsers();
                         this.$emit("user-blocked", response.data.data);
                     })

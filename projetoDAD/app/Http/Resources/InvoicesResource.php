@@ -26,7 +26,6 @@ class InvoicesResource extends JsonResource
             'quantity' => $this->items()->first()->pivot->quantity,
             'unit_price' => $this->items()->first()->pivot->unit_price,
             'sub_total_price' => $this->items()->first()->pivot->sub_total_price,
-
         ];
     }
 }

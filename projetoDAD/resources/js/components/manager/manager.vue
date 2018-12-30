@@ -17,8 +17,18 @@
 					<v-list-tile-title v-text="user.name"></v-list-tile-title>
 				</v-list-tile>
 				<v-list-tile >
-					<v-chip v-if="user.shift_active===0">Not Working</v-chip>
-					<v-chip v-else-if="user.shift_active===1">Working</v-chip>
+					<v-chip v-if="user.shift_active===0" color="red" text-color="white">
+						<v-avatar>
+							<v-icon>clear</v-icon>
+						</v-avatar>
+						You are: Not Working
+					</v-chip>
+					<v-chip v-else-if="user.shift_active===1" color="green" text-color="white">
+						<v-avatar>
+							<v-icon>check_circle</v-icon>
+						</v-avatar>
+						You are: Working
+					</v-chip>
 				</v-list-tile>
 				<v-subheader class="mt-3 grey--text text--white-1">MENU</v-subheader>
 				<router-link tag="span" style="cursor: pointer" to="/home">
@@ -66,6 +76,18 @@
 										@click="hideMainView"
 										class="white--text text--white-1"
 						>Tables Management
+						</v-list-tile-title>
+					</v-list-tile>
+				</router-link>
+				<router-link tag="span" style="cursor: pointer" :to="{ name: 'listManagerInvoices', params: { updateInvoiceTable } }">
+					<v-list-tile>
+						<v-list-tile-action>
+							<v-icon color="white white-1">format_list_bulleted</v-icon>
+						</v-list-tile-action>
+						<v-list-tile-title
+										@click="hideMainView"
+										class="white--text text--white-1"
+						>Invoices Management
 						</v-list-tile-title>
 					</v-list-tile>
 				</router-link>
@@ -123,7 +145,8 @@
 							</v-layout>
 						</v-container>
 						<br>
-						<summary_meals></summary_meals>
+						<summary_meals :updateOrderTable="updateOrderTable" :updateMealTable="updateMealTable" ></summary_meals>
+						<br>
 					</v-flex>
 					<v-flex v-else>
 						<router-view></router-view>
@@ -141,9 +164,10 @@
     import ListUnblockedUsers from "../manager/users/unblocked/list";
     import SummaryMeals from "../manager/summary/meals/list";
     import switchShift from "../reuse/shift";
+    import ListInvoices from "../manager/summary/invoices/list";
 
     export default {
-        props:['messageGlobal', 'messageManager','messageReport'],
+        props:['messageGlobal', 'messageManager','messageReport','updateOrderTable', 'updateTable', 'updateInvoiceTable', 'updateMealTable'],
         data: () => ({
             drawer: null,
             authenticated: false,
@@ -204,6 +228,7 @@
             list_unblocked_users: ListUnblockedUsers,
             summary_meals: SummaryMeals,
             switch_shift: switchShift,
+            list_invoices: ListInvoices,
         },
         mounted() {
             this.user = this.$store.state.user;
@@ -218,6 +243,18 @@
             },
             messageReport: function (newVal) {
                 return this.msgReportTextArea = newVal;
+            },
+            updateOrderTable: function (newVal) {
+		            return newVal;
+            },
+            updateInvoiceTable: function (newVal) {
+                return newVal;
+            },
+            updateMealTable: function (newVal) {
+                return newVal;
+            },
+            updateTable: function (newVal) {
+		            return newVal;
             }
 		    }
     };

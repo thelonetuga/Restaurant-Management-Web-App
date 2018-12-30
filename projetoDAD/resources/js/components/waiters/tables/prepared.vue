@@ -90,7 +90,6 @@
         },
         methods: {
             fetchPreparedOrders(page_url) {
-
                 let vm = this;
                 page_url = page_url || "/api/waiter/" +this.$store.state.user.id + "/orders/prepared";
                 axios
@@ -123,6 +122,11 @@
                 order.state = "delivered";
                 axios.put("api/orders/"+ order.id, order)
                     .then(response => {
+                        let data ={
+                            type: 4,
+                            order: response.data.data
+                        };
+                        this.$socket.emit('order_changed', data);
                         console.log('order updated');
                     })
                     .catch(function (error) {
@@ -133,8 +137,13 @@
                         // always executed
                     });
             },
-
-        }
+        },
+        sockets: {
+            order_changed(){
+                this.fetchPreparedOrders();
+                console.log('preparedOrders')
+            },
+        },
     }
     ;
 </script>

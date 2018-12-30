@@ -13,26 +13,28 @@
 				</v-btn>
 				<send-message @chatClose="closeDialogPrivate" :privateChat="showPrivateChat"></send-message>
 			</v-dialog>
-			<v-menu origin="center center" transition="scale-transition" top offset-y>
-				<v-btn dark slot="activator">
-					<span>All Notifications</span>
-					<v-badge left overlap color="orange">
-						<span slot="badge">6</span>
-						<v-icon>notifications</v-icon>
-					</v-badge>
-				</v-btn>
-				<notification-view :items="allNotifications"></notification-view>
-			</v-menu>
-			<v-menu origin="center center" transition="scale-transition" top offset-y>
+			<v-menu origin="center center" transition="scale-transition" open-on-hover top offset-y >
 				<v-btn dark slot="activator">
 					<span>Recent Notification</span>
 					<v-badge right overlap color="red">
-						<span slot="badge">!</span>
-						<v-icon>notification_important</v-icon>
+						<span slot="badge" v-model="counter">{{counter}}</span>
+						<v-icon>notifications</v-icon>
 					</v-badge>
 				</v-btn>
-				<notification-view :arrayNotificacoes="arrayTeste"></notification-view>
+				<notification-view @clean="reduceNotifications" :arrayNotificacoes="recentNotifications"></notification-view>
 			</v-menu>
+			<v-chip v-if="currentUser.shift_active===0" color="red" text-color="white">
+				<v-avatar>
+					<v-icon>clear</v-icon>
+				</v-avatar>
+				You are: Not Working
+			</v-chip>
+			<v-chip v-else-if="currentUser.shift_active===1" color="green" text-color="white">
+				<v-avatar>
+					<v-icon>check_circle</v-icon>
+				</v-avatar>
+				You are: Working
+			</v-chip>
 				<v-dialog v-model="showGlobalChat" persistent max-width="600px">
 					<v-btn ml-1 dark slot="activator">
 						<span>Global Chat</span>
@@ -55,56 +57,17 @@
     import sendMessage from './chat';
 
     export default {
-        props: ['arrayNotificationReportChannel'],
+        props: ['arrayNotificationReportChannel', 'updateOrderTable', 'updateItemList', 'updateTable','updateInvoiceTable', 'updateMealTable'],
         data() {
             return {
-                bottomNav: 3,
+                bottomNav: 1,
                 chat: false,
                 showGlobalChat: false,
                 showPrivateChat: false,
                 showNotifyManagerChat: false,
                 currentUser: this.$store.state.user,
-		            arrayTeste:[],
-                recentNotifications: [
-                    { header: 'Today' },
-                    {
-                        avatar: 'https://cdn.vuetifyjs.com/images/lists/1.jpg',
-                        title: 'Brunch this weekend?',
-                        subtitle: "<span class='text--primary'>Ali Connors</span> &mdash; I'll be in your neighborhood doing errands this weekend. Do you want to hang out?"
-                    },
-                    { divider: true, inset: true },
-                    {
-                        avatar: 'https://cdn.vuetifyjs.com/images/lists/2.jpg',
-                        title: 'Summer BBQ <span class="grey--text text--lighten-1">4</span>',
-                        subtitle: "<span class='text--primary'>to Alex, Scott, Jennifer</span> &mdash; Wish I could come, but I'm out of town this weekend."
-                    },
-                    { divider: true, inset: true },
-                    {
-                        avatar: 'https://cdn.vuetifyjs.com/images/lists/3.jpg',
-                        title: 'Oui oui',
-                        subtitle: "<span class='text--primary'>Sandra Adams</span> &mdash; Do you have Paris recommendations? Have you ever been?"
-                    }
-                ],
-                allNotifications: [
-                    { header: 'Today' },
-                    {
-                        avatar: 'https://cdn.vuetifyjs.com/images/lists/1.jpg',
-                        title: 'Brunch this weekend?',
-                        subtitle: "<span class='text--primary'>Ali Connors</span> &mdash; I'll be in your neighborhood doing errands this weekend. Do you want to hang out?"
-                    },
-                    { divider: true, inset: true },
-                    {
-                        avatar: 'https://cdn.vuetifyjs.com/images/lists/2.jpg',
-                        title: 'Summer BBQ <span class="grey--text text--lighten-1">4</span>',
-                        subtitle: "<span class='text--primary'>to Alex, Scott, Jennifer</span> &mdash; Wish I could come, but I'm out of town this weekend."
-                    },
-                    { divider: true, inset: true },
-                    {
-                        avatar: 'https://cdn.vuetifyjs.com/images/lists/3.jpg',
-                        title: 'Oui oui',
-                        subtitle: "<span class='text--primary'>Sandra Adams</span> &mdash; Do you have Paris recommendations? Have you ever been?"
-                    }
-                ],
+                recentNotifications: [],
+		            counter: 0,
             }
         },
         methods: {
@@ -117,9 +80,9 @@
             closeDialogReport() {
                 this.showNotifyManagerChat = false;
             },
-		        clearRecentNotificationArray(){
-
-		        }
+            reduceNotifications(val){
+                this.counter = this.counter + val;
+            }
         },
         computed: {
             color() {
@@ -131,16 +94,45 @@
                     case 2:
                         return 'brown';
                     case 3:
-                        return 'indigo';
+                        return 'light-blue darken-3';
+		                case 4:
+		                    return 'indigo';
                 }
             },
             trigger: function (newVal) {
                 return newVal;
-            }
+            },
         },
 		    watch:{
             arrayNotificationReportChannel: function (newVal, oldVal) {
-               return this.arrayTeste = newVal;
+                this.bottomNav = 2;
+                this.reduceNotifications(1);
+                return this.recentNotifications = newVal;
+            },
+            updateOrderTable: function (newVal) {
+                this.bottomNav = 2;
+                this.recentNotifications = newVal;
+                this.reduceNotifications(1);
+            },
+            updateItemList: function (newVal) {
+                this.bottomNav = 2;
+                this.recentNotifications = newVal;
+                this.reduceNotifications(1);
+            },
+            updateTable: function (newVal) {
+                this.bottomNav = 2;
+                this.recentNotifications = newVal;
+                this.reduceNotifications(1);
+            },
+            updateInvoiceTable: function (newVal) {
+                this.bottomNav = 2;
+                this.recentNotifications = newVal;
+                this.reduceNotifications(1);
+            },
+            updateMealTable: function (newVal) {
+                this.bottomNav = 2;
+                this.recentNotifications = newVal;
+                this.reduceNotifications(1);
             }
 		    },
         components: {

@@ -24,6 +24,9 @@
 					<td class="text-xs-left">{{ props.item.state }}</td>
 					<td class="text-xs-left">{{ props.item.table_number }}</td>
 					<td class="text-xs-left">{{ props.item.waiter_name }}</td>
+					<td class="text-left" v-if="props.item.state === 'terminated'">
+						<v-btn flat small color="warning" @click="changeState(props.item)">Not Paid</v-btn>
+					</td>
 				</tr>
 			</template>
 			<template slot="expand" slot-scope="props" light>
@@ -58,6 +61,7 @@
 
 <script>
     export default {
+        props:['updateOrderTable','updateMealTable'],
         data() {
             return {
                 mealsActiveAndTerminated: [],
@@ -82,6 +86,7 @@
                     {text: 'State Meal', value: 'state'},
                     {text: 'Table Number', value: 'table'},
                     {text: 'Responsible Waiter', value: 'state'},
+                    {text: "Change State", value: "name", sortable: false }
                 ],
                 headersOrders: [
                     {
@@ -115,6 +120,22 @@
                         // always executed
                     });
             },
+		        changeState(meal){
+                axios
+                    .patch("api/meal/"+meal.id+"/change/state/terminated")
+                    .then(response => {
+                        this.$socket.emit('invoice_changed', response.data.data);
+                        this.$socket.emit('meal_changed', response.data.data);
+                        console.log('Estado alterado para:',response.data.data.state);
+                    })
+                    .catch(function(error) {
+                        // handle error
+                        console.log(error);
+                    })
+                    .then(function() {
+                        // always executed
+                    });
+		        },
             makePagination(page) {
                 this.loading = true;
                 axios.get("api/meals/state/active_terminated?page=" + page)
@@ -134,7 +155,18 @@
                     });
             },
         },
-        watch: {},
+        watch: {
+            updateOrderTable: function (newVal) {
+                this.$toasted.show('Order "' + newVal.changedOrder.id + 'has changed');
+                this.$toasted.success('Table Meals updated');
+		            this.fetchMeals();
+            },
+            updateMealTable: function (newVal) {
+                this.$toasted.show('Meal "' + newVal.changedMeal.id + 'has changed');
+                this.$toasted.success('Table Meals updated');
+                this.fetchMeals();
+            }
+        },
         created() {
             this.fetchMeals();
         }

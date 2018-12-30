@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Meals;
 use App\Orders;
 use Illuminate\Http\Request;
 use App\Invoices;
 use App\Http\Resources\InvoicesResource as InvoicesResource;
-use App\Http\Resources\InvoiceItems;
+use App\Http\Resources\InvoiceItems as InvoiceItemsResource;
+use App\Invoice_items as InvoiceItems;
 
 class InvoicesController extends Controller
 {
@@ -61,32 +63,25 @@ class InvoicesController extends Controller
 
         $orders = Orders::where('meal_id', $data['meal_id'])->where('state', '=', 'delivered')->get();
         //1-6-1
-
         foreach ($orders as $order) {
             $invoiceItemaux = InvoiceItems::where('invoice_id', '=', $invoice->id)->where('item_id', '=', $order->item->id)->first();
-
             if ($invoiceItemaux == null) {
-
                 $invoiceItem = new InvoiceItems();
                 $invoiceItem->invoice_id = $invoice->id;
                 $invoiceItem->item_id = $order->item->id;
                 $invoiceItem->quantity = 1;
                 $invoiceItem->sub_total_price = $order->item->price;
-                $invoiceItem->unit_price  = $order->item->price;
+                $invoiceItem->unit_price = $order->item->price;
                 $invoiceItem->save();
 
-            } else {
-
-                $invoice = InvoiceItems::findOrFail($invoiceItemaux->invoice_id)->first();
-                $invoice->quantity += 1;
-                $invoice->sub_total_price = $invoiceItemaux->sub_total_price + $order->item->price;
-                $invoice->update();
+            } else if ($invoiceItemaux->item_id == $order->item->id){
+                $invoice_items = InvoiceItems::where('invoice_id', '=', $invoice->id)->whereIn('item_id',$order->item->id)->first();
+                $invoice_items->quantity =  $invoice_items->quantity + 1;
+                $invoice_items->sub_total_price = $invoice_items->unit_price * $invoice_items->quantity;
+                $invoice_items->save();
             }
         }
-
         return response()->json(new InvoicesResource($invoice), 201);
-
-
     }
 
     /**
@@ -140,6 +135,21 @@ class InvoicesController extends Controller
         //
     }
 
+    public function changeStateToNotPaid($id, $meal_id){
+        $invoice = Invoices::findOrFail($id);
+        $meal = Meals::findOrFail($meal_id);
+        $orders_changes = Orders::where([['meal_id',$meal_id],['state', '<>', 'delivered'], ['state', '<>', 'not delivered']])->get();
+        foreach ($orders_changes as $order) {
+            $order->state = "not delivered";
+            $order->update();
+        }
+        $meal->state = "not paid";
+        $invoice->state = "not paid";
+        $invoice->update();
+        $meal->update();
+        return new InvoicesResource($invoice);
+    }
+
     /**
      * Update the specified resource in storage.
      *
@@ -153,11 +163,13 @@ class InvoicesController extends Controller
             'nif' => 'required',
             'name' => 'required',
         ]);
-
         $invoice = Invoices::where('id', $id)->first();
+        $meal = Meals::where('id',$invoice->meal_id)->first();
+        $meal->state = 'paid';
+        $meal->update();
         $invoice->nif = $data['nif'];
         $invoice->name = $data['name'];
-
+        $invoice->state = 'paid';
         $invoice->update();
         return new InvoicesResource($invoice);
     }

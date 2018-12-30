@@ -26,7 +26,7 @@
             };
         },
         created() {
-            this.isPrepared = true;
+            this.isPending = true;
         },
         methods: {
             swapTables(){

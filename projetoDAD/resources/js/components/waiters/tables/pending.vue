@@ -120,6 +120,7 @@
             deleteOrder(order) {
                 axios.delete("api/orders/delete/" + order.id)
                     .then(response => {
+                        this.$socket.emit('order_deleted', response.data.data);
                         console.log('order deleted');
                     })
                     .catch(function (error) {
@@ -129,6 +130,12 @@
                     .then(function () {
                         // always executed
                     });
+            },
+        },
+        sockets: {
+            order_changed(){
+                this.fetchPendingOrders();
+                console.log('preparedOrders')
             },
         }
     }

@@ -2,7 +2,6 @@
 	<v-content>
 		<v-container fill-height>
 			<v-layout justify-center align-center>
-				<v-switch :label="'Switch to Start / End Shift'" v-model="isDisable"></v-switch>
 				<v-flex shrink>
 					<v-text-field
 									disabled
@@ -57,7 +56,7 @@
     export default {
         data: () => ({
             drawer: null,
-            isDisable: false,
+            isDisable: true,
             authenticated: false
         }),
 

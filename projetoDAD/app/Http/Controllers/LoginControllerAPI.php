@@ -1,21 +1,16 @@
 <?php
-
 namespace App\Http\Controllers;
-
 define('YOUR_SERVER_URL', "http://projeto.ei");
 // Check "oauth_clients" table for next 2 values:
 define('CLIENT_ID', '2');
-define('CLIENT_SECRET', 'IwGHD88YXJCRgwkb3uBOiBuIVDD3fWdlYa3B2odN');
-
+define('CLIENT_SECRET', 'KnRLUyBEIbMiN18y6hwZkQYEEw1L4cGf7DsoBLJf');
 use Auth;
 use Illuminate\Http\Request;
-
 class LoginControllerAPI extends Controller
 {
     public function login(Request $request)
     {
         $http = new \GuzzleHttp\Client;
-
         $response = $http->post(YOUR_SERVER_URL . '/oauth/token', [
             'form_params' => [
                 'grant_type' => 'password',
@@ -27,9 +22,7 @@ class LoginControllerAPI extends Controller
             ],
             'exceptions' => false,
         ]);
-
         $errorCode = $response->getStatusCode();
-
         if ($errorCode == '200') {
             return json_decode((string)$response->getBody(), true);
         } else {
@@ -39,7 +32,6 @@ class LoginControllerAPI extends Controller
             );
         }
     }
-
     public function logout()
     {
         Auth::guard('api')->user()->token()->revoke();

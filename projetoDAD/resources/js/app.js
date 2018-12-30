@@ -28,7 +28,7 @@ Vue.use(new VueSocketio({
 
 Vue.use(Toasted, {
     position: 'bottom-center',
-    duration: 5000,
+    duration: 2000,
     type: 'info',
 });
 window.Event = new Vue;

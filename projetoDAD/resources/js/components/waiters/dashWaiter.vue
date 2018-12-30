@@ -16,6 +16,20 @@
 					</v-list-tile-avatar>
 					<v-list-tile-title v-text="user.name"></v-list-tile-title>
 				</v-list-tile>
+				<v-list-tile >
+					<v-chip v-if="user.shift_active===0" color="red" text-color="white">
+						<v-avatar>
+							<v-icon>clear</v-icon>
+						</v-avatar>
+						You are: Not Working
+					</v-chip>
+					<v-chip v-else-if="user.shift_active===1" color="green" text-color="white">
+						<v-avatar>
+							<v-icon>check_circle</v-icon>
+						</v-avatar>
+						You are: Working
+					</v-chip>
+				</v-list-tile>
 				<v-subheader class="mt-3 grey--text text--white-1">MENU</v-subheader>
 				<router-link tag="span" style="cursor: pointer" to="/home">
 					<v-list-tile>
@@ -79,9 +93,12 @@
 			<v-container fill-height>
 				<v-layout justify-center align-center>
 					<v-flex>
-						<list_meals></list_meals>
+						<switch-Shift></switch-Shift>
+						<br>
+						<list_meals :updateMealTable="updateMealTable" :updateOrderTable="updateOrderTable" ></list_meals>
 						<br>
 						<list_orders></list_orders>
+						<br>
 						<router-view></router-view>
 					</v-flex>
 				</v-layout>
@@ -93,8 +110,10 @@
 <script>
 		import MyMeals from './MyMeals';
 		import MyOrders from './MyOrders';
+    import switchShift from "../reuse/shift";
 
     export default {
+        props:['updateMealTable', 'updateOrderTable'],
         data: () => ({
             drawer: null,
             authenticated: false,
@@ -105,18 +124,6 @@
             msgManagerTextArea:"",
 
         }),
-        sockets:{
-            connect(){
-                console.log('socket connected (socket ID = '+this.$socket.id+')');
-            },
-            msg_from_server(dataFromServer){
-                this.msgGlobalTextArea = dataFromServer + '\n' + this.msgGlobalTextArea;
-            },
-            msg_from_server_manager(dataFromServer){
-                console.log(dataFromServer);
-                this.msgManagerTextArea = dataFromServer + '\n' + this.msgManagerTextArea ;
-            }
-        },
         methods: {
             removeNav() {
                 this.$emit("removeNav");
@@ -134,7 +141,7 @@
                         this.$emit("logoutMessage");
                         this.$emit("removeDash");
                         this.$router.push("/");
-                        console.log("Logout Button: UserResource", this.$store.state.user);
+                        console.log("Logout Button:", this.$store.state.user);
                     })
                     .catch(error => {
                         this.$store.commit("clearUserAndToken");
@@ -148,8 +155,17 @@
         },
         components: {
             'list_meals': MyMeals,
-            'list_orders': MyOrders
+            'list_orders': MyOrders,
+            'switch-Shift': switchShift
         },
+		    watch:{
+            updateMealTable: function (newVal) {
+		            return newVal;
+            },
+            updateOrderTable: function (newVal) {
+		            return newVal;
+            }
+		    },
         mounted() {
             this.user = this.$store.state.user;
             this.$emit("removeNav");

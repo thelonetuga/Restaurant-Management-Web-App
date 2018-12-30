@@ -60,13 +60,12 @@
                     .replace("Z", " ")
                     .replace("T", " ")
                     .slice(0, 19);
-
                 axios
                     .post("api/meals/create", innermeal)
                     .then(response => {
+                        this.$socket.emit('meal_created', this.meal);
                         Object.assign(innermeal, response.data.data);
                         this.$emit("closeDialog");
-
                     })
                     .catch(function (error) {
                         // handle error

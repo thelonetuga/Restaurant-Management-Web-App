@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit84e7d2349587fb7e47b6af10b8fb32e3
+class ComposerStaticInit4d2d84fc45b05b8fcda33a0d3234bec1
 {
     public static $files = array (
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
@@ -2795,6 +2795,7 @@ class ComposerStaticInit84e7d2349587fb7e47b6af10b8fb32e3
         'Illuminate\\View\\ViewFinderInterface' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/View/ViewFinderInterface.php',
         'Illuminate\\View\\ViewName' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/View/ViewName.php',
         'Illuminate\\View\\ViewServiceProvider' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/View/ViewServiceProvider.php',
+        'ItemsImageFixSeeder' => __DIR__ . '/../..' . '/database/seeds/ItemsImageFixSeeder.php',
         'ItemsSeeder' => __DIR__ . '/../..' . '/database/seeds/ItemsSeeder.php',
         'JakubOnderka\\PhpConsoleColor\\ConsoleColor' => __DIR__ . '/..' . '/jakub-onderka/php-console-color/src/ConsoleColor.php',
         'JakubOnderka\\PhpConsoleColor\\InvalidStyleException' => __DIR__ . '/..' . '/jakub-onderka/php-console-color/src/InvalidStyleException.php',
@@ -3220,6 +3221,7 @@ class ComposerStaticInit84e7d2349587fb7e47b6af10b8fb32e3
         'Monolog\\Utils' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Utils.php',
         'Nexmo\\Account\\Balance' => __DIR__ . '/..' . '/nexmo/client/src/Account/Balance.php',
         'Nexmo\\Account\\Client' => __DIR__ . '/..' . '/nexmo/client/src/Account/Client.php',
+        'Nexmo\\Account\\PrefixPrice' => __DIR__ . '/..' . '/nexmo/client/src/Account/PrefixPrice.php',
         'Nexmo\\Account\\Price' => __DIR__ . '/..' . '/nexmo/client/src/Account/Price.php',
         'Nexmo\\Account\\Secret' => __DIR__ . '/..' . '/nexmo/client/src/Account/Secret.php',
         'Nexmo\\Account\\SecretCollection' => __DIR__ . '/..' . '/nexmo/client/src/Account/SecretCollection.php',
@@ -5057,6 +5059,7 @@ class ComposerStaticInit84e7d2349587fb7e47b6af10b8fb32e3
         'TijsVerkoyen\\CssToInlineStyles\\Css\\Property\\Property' => __DIR__ . '/..' . '/tijsverkoyen/css-to-inline-styles/src/Css/Property/Property.php',
         'TijsVerkoyen\\CssToInlineStyles\\Css\\Rule\\Processor' => __DIR__ . '/..' . '/tijsverkoyen/css-to-inline-styles/src/Css/Rule/Processor.php',
         'TijsVerkoyen\\CssToInlineStyles\\Css\\Rule\\Rule' => __DIR__ . '/..' . '/tijsverkoyen/css-to-inline-styles/src/Css/Rule/Rule.php',
+        'UsersPhotoFixSeeder' => __DIR__ . '/../..' . '/database/seeds/UsersPhotoFixSeeder.php',
         'UsersSeeder' => __DIR__ . '/../..' . '/database/seeds/UsersSeeder.php',
         'Webmozart\\Assert\\Assert' => __DIR__ . '/..' . '/webmozart/assert/src/Assert.php',
         'Whoops\\Exception\\ErrorException' => __DIR__ . '/..' . '/filp/whoops/src/Whoops/Exception/ErrorException.php',
@@ -5207,11 +5210,11 @@ class ComposerStaticInit84e7d2349587fb7e47b6af10b8fb32e3
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit84e7d2349587fb7e47b6af10b8fb32e3::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit84e7d2349587fb7e47b6af10b8fb32e3::$prefixDirsPsr4;
-            $loader->fallbackDirsPsr4 = ComposerStaticInit84e7d2349587fb7e47b6af10b8fb32e3::$fallbackDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit84e7d2349587fb7e47b6af10b8fb32e3::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInit84e7d2349587fb7e47b6af10b8fb32e3::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit4d2d84fc45b05b8fcda33a0d3234bec1::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit4d2d84fc45b05b8fcda33a0d3234bec1::$prefixDirsPsr4;
+            $loader->fallbackDirsPsr4 = ComposerStaticInit4d2d84fc45b05b8fcda33a0d3234bec1::$fallbackDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit4d2d84fc45b05b8fcda33a0d3234bec1::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit4d2d84fc45b05b8fcda33a0d3234bec1::$classMap;
 
         }, null, ClassLoader::class);
     }

@@ -127,6 +127,7 @@ export default {
         this.tables.splice(index, 1);
          axios.delete("api/tables/delete/"+table.table_number)
         .then(response => {
+          this.$socket.emit('table_deleted', response.data.data);
           this.showSuccess = true;
           this.successMessage = "Table Deleted";
           this.initialize();
@@ -158,6 +159,7 @@ export default {
           )
           .then(function(response) {
             // handle succes
+            this.$socket.emit('table_changed', response.data.data);
             console.log("axios", response.data.data);
           })
           .catch(function(error) {
@@ -172,7 +174,8 @@ export default {
         axios
           .post("api/tables/create", this.editedTable)
           .then(response => {
-            Object.assign(this.editedTable, response.data.data);
+            this.$socket.emit('table_created', response.data);
+            Object.assign(this.editedTable, response.data);
           })
           .catch(function(error) {
             // handle error

@@ -16,6 +16,20 @@
           </v-list-tile-avatar>
           <v-list-tile-title v-text="user.name"></v-list-tile-title>
         </v-list-tile>
+        <v-list-tile >
+          <v-chip v-if="user.shift_active===0" color="red" text-color="white">
+            <v-avatar>
+              <v-icon>clear</v-icon>
+            </v-avatar>
+            You are: Not Working
+          </v-chip>
+          <v-chip v-else-if="user.shift_active===1" color="green" text-color="white">
+            <v-avatar>
+              <v-icon>check_circle</v-icon>
+            </v-avatar>
+            You are: Working
+          </v-chip>
+        </v-list-tile>
         <v-subheader class="mt-3 grey--text text--white-1">MENU</v-subheader>
         <router-link tag="span" style="cursor: pointer" to="/home">
           <v-list-tile>
@@ -81,7 +95,9 @@
       <v-container fill-height>
         <v-layout justify-center align-center>
           <v-flex>
-            <list_invoices></list_invoices>
+            <switch-Shift></switch-Shift>
+            <br>
+            <list_invoices :updateInvoiceTable="updateInvoiceTable"></list_invoices>
             <br>
             <router-view></router-view>
           </v-flex>
@@ -93,7 +109,10 @@
 
 <script>
 import ListInvoices from "./ListInvoices";
+import switchShift from "../reuse/shift";
+
 export default {
+  props:['updateInvoiceTable'],
   data: () => ({
     drawer: null,
     authenticated: false,
@@ -132,8 +151,14 @@ export default {
         });
     }
   },
+  watch:{
+    updateInvoiceTable: function (newVal) {
+      return newVal;
+    }
+  },
   components: {
-    list_invoices: ListInvoices
+    'list_invoices': ListInvoices,
+    'switch-Shift': switchShift
   },
   mounted() {
     this.user = this.$store.state.user;

@@ -6,7 +6,7 @@
 		</div>
 		<item-edit :item="currentItem" :isEdit="isEditing" @item-saved="savedItem" @item-canceled="cancelEdit"
 		           v-if="isEditing"></item-edit>
-		<item-add v-if="isAdding" @item-canceled="cancelEdit"></item-add>
+		<item-add v-if="isAdding" @item-canceled="cancelEdit" @item-saved="savedItem"></item-add>
 		<v-container v-if="isListActive" grid-list-md text-xs-center>
 			<div class="text-xs-center">
 				<v-pagination
@@ -16,54 +16,81 @@
 								circle
 				></v-pagination>
 			</div>
-			<v-container>
+			<v-container v-if="currentUser != null && currentUser.type === 'manager'">
 				<router-link tag="span" style="cursor: pointer" to="/items/new">
 					<v-btn color="success" v-on:click.prevent="createItem()">Create Item</v-btn>
 				</router-link>
 			</v-container>
-		<v-layout>
-			<v-flex xs12>
-				<v-card>
-					<v-container fluid grid-list-md>
-						<v-layout row wrap>
-							<v-flex
-											v-for="item in items"
-											:key="item.name"
-											xs4 sm5 md3>
-								<v-card light hover :id="item.id">
-									<v-img
-													:src="'/storage/items/'+item.photo_url"
-													height="200px"
-									>
-									</v-img>
-									<v-card-text>
-										<p class="headline text-lg-center">{{item.name}}</p>
-										<p class="headline text-lg-center">{{item.price}}€</p>
-										<p class="headline text-lg-center" v-if="item.type == 'drink'">Drink</p>
-										<p class="headline text-lg-center" v-else>Dish</p>
-									</v-card-text>
-									<v-card-actions>
-										<v-spacer></v-spacer>
-										<v-btn color="error" v-on:click.prevent="deleteItem(item)">Delete</v-btn>
-										<v-btn color="warning" v-on:click.prevent="editItem(item)">Edit</v-btn>
-										<v-spacer></v-spacer>
-										<v-btn icon @click="show = !show" v-bind:key="item.id">
-											<v-icon>{{ show ? 'keyboard_arrow_down' : 'keyboard_arrow_up' }}</v-icon>
+			<v-container
+							fluid grid-list-md
+			>
+				<v-layout row wrap>
+					<v-flex
+									v-for="item in items" :key="item.name"
+									xs4>
+						<v-hover>
+							<v-card
+											slot-scope="{ hover }"
+											class="mx-auto"
+											color="grey lighten-4"
+											max-width="600"
+							>
+								<v-img
+												:aspect-ratio="16/9"
+												height="200px"
+												:src="'/storage/items/'+item.photo_url"
+								>
+									<v-expand-transition>
+										<div
+														v-if="hover"
+														class="d-flex transition-fast-in-fast-out orange darken-2 v-card--reveal display-3 white--text"
+														style="height: 100%;"
+										>
+											{{item.price}}€
+										</div>
+									</v-expand-transition>
+								</v-img>
+								<v-card-text
+												class="pt-4"
+												style="position: relative;"
+								>
+									<v-flex xs1 -if="currentUser.type === 'manager'">
+										<v-btn
+														absolute
+														color="orange"
+														class="white--text"
+														fab
+														dark
+														top
+														v-on:click.prevent="editItem(item)"
+										>
+											<v-icon>edit</v-icon>
 										</v-btn>
-									</v-card-actions>
-									<v-slide-y-transition>
-										<v-card-text v-show="show">
-											{{item.description}}
-										</v-card-text>
-									</v-slide-y-transition>
-								</v-card>
-							</v-flex>
-						</v-layout>
-					</v-container>
-				</v-card>
-			</v-flex>
-		</v-layout>
+										<v-btn
+														absolute
+														color="red"
+														class="white--text"
+														fab
+														right
+														top
+														v-on:click.prevent="deleteItem(item)"
+										>
+											<v-icon>remove_circle_outline</v-icon>
+										</v-btn>
+									</v-flex>
+									<div class="font-weight-light grey--text title mb-2" v-if="item.type === 'drink'">Drink</div>
+									<div class="font-weight-light grey--text title mb-2" v-else>Dish</div>
+									<h3 class="display-1 font-weight-light orange--text mb-2">{{item.name}}</h3>
+									<div class="font-weight-light  grey--text  title mb-2">
+										{{item.description}}
+									</div>
+								</v-card-text>
+							</v-card>
+						</v-hover>
+					</v-flex>
+				</v-layout>
 			</v-container>
+		</v-container>
 	</div>
 </template>
 <script>
@@ -71,6 +98,7 @@
     import editItem from "./EditItem";
 
     export default {
+        props: ['updateItemList'],
         data() {
             return {
                 show: false,
@@ -84,10 +112,12 @@
                 currentPage: 1,
                 lastPage: 0,
                 pagination: {},
+                currentUser: ""
             };
         },
         created() {
             this.fetchItems();
+            this.currentUser = this.$store.state.user;
         },
         methods: {
             fetchItems() {
@@ -98,7 +128,7 @@
                         vm.items = response.data.data;
                         vm.currentPage = response.data.meta.current_page;
                         vm.lastPage = response.data.meta.last_page;
-                        vm.pagination = response.data.  meta.links;
+                        vm.pagination = response.data.meta.links;
                     })
                     .catch(function (error) {
                         // handle error
@@ -138,7 +168,8 @@
                 this.isEditing = false;
             },
             deleteItem: function (item) {
-                axios.delete("api/delete/items/" + item.id)
+                this.$socket.emit('item_deleted', item);
+                axios.delete("api/items/delete/" + item.id)
                     .then(response => {
                         this.showSuccess = true;
                         this.successMessage = "Item Deleted";
@@ -157,8 +188,8 @@
                 this.isAdding = false;
                 this.isListActive = true;
                 this.currentItem = null;
-                this.showSuccess = true;
-                this.successMessage = "Item Saved";
+                this.showSuccess = false;
+                this.$toasted.success('Item Created/Saved');
             },
             cancelEdit: function () {
                 this.isEditing = false;
@@ -173,6 +204,11 @@
                 this.successMessage = message;
             }
         },
+        watch: {
+            updateItemList: function (newVal) {
+                this.fetchItems();
+            }
+        },
         components: {
             "item-add": newItem,
             "item-edit": editItem
@@ -180,5 +216,12 @@
     };
 </script>
 <style>
-
+	.v-card--reveal {
+		align-items: center;
+		bottom: 0;
+		justify-content: center;
+		opacity: .5;
+		position: absolute;
+		width: 100%;
+	}
 </style>

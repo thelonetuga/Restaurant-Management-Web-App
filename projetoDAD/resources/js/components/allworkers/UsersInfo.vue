@@ -135,6 +135,7 @@ export default {
         .put("api/users/" + this.user.id, this.user)
         .then(response => {
           Object.assign(this.user, response.data.data);
+          this.$socket.emit('user_changed', response.data.data);
           this.$store.commit("setUser", this.user);
         })
         .catch(function(error) {
@@ -191,7 +192,6 @@ export default {
     },
     upload() {
       const formData = new FormData();
-
       this.files.forEach(file => {
         formData.append("images", file, file.name);
         formData.append("id", this.user.id);
@@ -200,6 +200,7 @@ export default {
         .post("/api/users/upload", formData)
         .then(response => {
           // this.$toastr.s("All images uplaoded successfully");
+          this.$socket.emit('user_changed', response.data.data);
           this.images = [];
           this.files = [];
         })

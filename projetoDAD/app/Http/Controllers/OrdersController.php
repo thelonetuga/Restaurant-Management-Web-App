@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\OrdersResource;
+use ArrayObject;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Orders;
-use App\Http\Resources\OrdersResource as OrdersResource;
+use Illuminate\Support\Collection;
+use PhpParser\Node\Expr\Array_;
 
 class OrdersController extends Controller
 {
@@ -30,6 +34,12 @@ class OrdersController extends Controller
 
         return OrdersResource::collection($orders);
     }
+    public function noCookOrders()
+    {
+
+        $orders = Orders::whereNull('responsible_cook_id')->where([['state', '=', 'confirmed']])->orwhere([['state', '=', 'confirmed']])->orderBy('responsible_cook_id')->paginate(20);
+        return OrdersResource::collection($orders);
+    }
 
     public function waiterPendingConfirmedOrders($responsible_waiter_id)
     {
@@ -47,6 +57,13 @@ class OrdersController extends Controller
             return $order->meal->responsible_waiter_id != $responsible_waiter_id;
         });
         return OrdersResource::collection($pending);
+    }
+
+    public function changeStateAfter5Sec($id){
+        $order = Orders::findOrFail($id);
+        $order->state = 'confirmed';
+        $order->update();
+        return new OrdersResource($order);
     }
 
     /**
@@ -79,18 +96,17 @@ class OrdersController extends Controller
 
         $meal_id = $request['edit_meal'];
 
-        $orderReturn = null;
+        $orderReturn = Collection::make();
         foreach ($request['items'] as $item_id) {
             $order = new Orders();
             $order->state = "pending";
             $order->item_id = $item_id;
             $order->meal_id = $meal_id;
-            $order->start = now();
+            $order->start = Carbon::now();
             $order->save();
-            $orderReturn = $order;
+            $orderReturn->push($order);
         }
-
-        return response()->json(new OrdersResource($orderReturn), 201);
+        return response()->json(OrdersResource::collection($orderReturn), 201);
     }
 
     /**
@@ -125,7 +141,6 @@ class OrdersController extends Controller
     public function update($id, Request $request)
     {
         $order = Orders::findOrFail($id);
-
         $order->update($request->all());
         return new OrdersResource($order);
     }

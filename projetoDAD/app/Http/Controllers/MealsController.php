@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\MealsWithOrdersResource;
+use App\Invoices;
 use Illuminate\Http\Request;
 use App\Meals;
 use App\Orders;
@@ -26,17 +27,6 @@ class MealsController extends Controller
         $meals = Meals::where('state','active')->orwhere('state','terminated')->paginate(5);
         return MealsWithOrdersResource::collection($meals);
     }
-
-/*
-    public function getMealsActiveAndTerminated()
-    {
-        $meals = Meals::join('orders','meals.id','=','orders.meal_id')
-            ->join('items','items.id','=','orders.item_id')
-            ->select('meals.*','orders.*','orders.state','items.name')->where('meals.state','active')->orwhere('meals.state','terminated')
-            ->paginate(10);
-        return MealsResource::collection($meals);
-    }*/
-
     /**
      * Show the form for creating a new resource.
      *
@@ -55,13 +45,12 @@ class MealsController extends Controller
      */
     public function store(Request $request)
     {
-        //
         $meal = new Meals();
         $meal->fill($request->all());
         $meal->save();
-        return response()->json(new MealsResource($meal), 201);
+        dd($meal);
+        return MealsResource($meal);
     }
-
 
     /**
      * Display the specified resource.
@@ -72,6 +61,22 @@ class MealsController extends Controller
     public function show($id)
     {
         //
+    }
+
+
+    public function changeStateToNotPaid($id){
+        $meal = Meals::findOrFail($id);
+        $invoice = Invoices::where('meal_id',$id)->first();
+        $orders_changes = Orders::where([['meal_id',$id],['state', '<>', 'delivered'], ['state', '<>', 'not delivered']])->get();
+        foreach ($orders_changes as $order) {
+            $order->state = "not delivered";
+            $order->update();
+        }
+        $meal->state = "not paid";
+        $invoice->state = "not paid";
+        $invoice->update();
+        $meal->update();
+        return new MealsResource($meal);
     }
 
     /**

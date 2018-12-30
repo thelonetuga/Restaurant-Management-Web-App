@@ -20,7 +20,7 @@ class Meals extends Model
     }
 
     public function order(){
-        return $this->hasMany(Orders::class);
+        return $this->hasMany(Orders::class, 'meal_id','id');
     }
 
     public function item(){

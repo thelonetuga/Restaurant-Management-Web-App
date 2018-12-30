@@ -1,14 +1,14 @@
 <template>
   <v-app id="dash">
     <h1>ola</h1>
-        <router-view :messageReport="messageToReportChannel" :messageGlobal="messageToGlobalChannel" :messageManager="messageToManagerChannel" @logoutMessage="logoutSuccess" @removeDash="removeDash" @removeNav="removeNav"></router-view>
+        <router-view :updateMealTable="updateMealTable" :updateInvoiceTable="updateInvoiceTable" :updateOrderTable="updateOrderTable" :messageReport="messageToReportChannel" :messageGlobal="messageToGlobalChannel" :messageManager="messageToManagerChannel" @logoutMessage="logoutSuccess" @removeDash="removeDash" @removeNav="removeNav"></router-view>
   </v-app>
 </template>
 <script>
 
 
 export default {
-  props:['messageToGlobalChannel','messageToManagerChannel','messageToReportChannel'],
+  props:['messageToGlobalChannel','messageToManagerChannel','messageToReportChannel','updateOrderTable', 'updateInvoiceTable', 'updateMealTable'],
   data: () => ({}),
   methods: {
     logoutSuccess: function() {
@@ -31,6 +31,18 @@ export default {
       return newVal;
     },
     messageToReportChannel: function (newVal) {
+      return newVal;
+    },
+    updateOrderTable: function (newVal) {
+      console.log("Dashboard:"+ newVal.changedOrder.id +" has changed");
+      return newVal;
+    },
+    updateInvoiceTable:function (newVal) {
+      console.log("Dashboard:"+ newVal.changedInvoice.id +" has changed");
+      return newVal;
+    },
+    updateMealTable:function (newVal) {
+      console.log("Dashboard:"+ newVal.changedMeal.id +" has changed");
       return newVal;
     }
   }

@@ -94,6 +94,7 @@ export default {
         .post("api/items/create",fd)
         .then(response => {
           Object.assign(this.item, response.data.data);
+          this.$socket.emit('item_created', this.item);
           this.$emit("item-saved", this.item);
         })
         .catch(function(error) {

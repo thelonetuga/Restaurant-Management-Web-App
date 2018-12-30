@@ -87,6 +87,7 @@ export default {
       axios
         .patch("api/user/unblock/" + user.id)
         .then(response => {
+          this.$socket.emit('user_unblocked', response.data.data);
           this.$emit("user-unblocked", response.data.data);
           this.fetchBlockedUsers();
         })

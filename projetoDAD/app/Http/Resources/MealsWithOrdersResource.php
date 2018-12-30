@@ -25,7 +25,7 @@ class MealsWithOrdersResource extends OrdersResource
             'state' => $this->state,
             'table_number' => $this->table_number,
             'waiter_name' => $this->user()->value('name'),
-            'orders'=> Orders::where('meal_id',$this->id)->with('item')->get()
+            'orders'=>$this->order()->with('item')->get(),
         ];
     }
 }

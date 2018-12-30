@@ -1,32 +1,29 @@
 <template>
-	<v-list two-line>
+	<v-list fixed two-line>
 		<template v-for="(item, index) in items">
-			<v-subheader
-							v-if="item.header"
-							:key="item.header"
-			>
-				{{ item.header }}
-			</v-subheader>
-
 			<v-divider
-							v-else-if="item.divider"
-							:inset="item.inset"
+							:inset="true"
 							:key="index"
 			></v-divider>
-
 			<v-list-tile
-							v-else
-							:key="item.title"
+							:key="item.subtitle"
 							avatar
 							@click=""
 			>
-				<v-list-tile-avatar>
+				<v-list-tile-avatar v-if="item.icon">
+					<v-icon :class="[item.iconClass]">{{ item.icon }}</v-icon>
+				</v-list-tile-avatar>
+				<v-list-tile-avatar v-else>
 					<img :src="'/storage/profiles/'+item.avatar">
 				</v-list-tile-avatar>
 				<v-list-tile-content>
 					<v-list-tile-title v-html="item.title"></v-list-tile-title>
 					<v-list-tile-sub-title v-html="item.subtitle"></v-list-tile-sub-title>
 				</v-list-tile-content>
+				<v-list-tile-action>
+						<v-btn flat small color="primary" @click="takeMethere(item.actionRoute)">See</v-btn>
+					  <v-btn flat small color="error" @click="clean(index)">Clean</v-btn>
+				</v-list-tile-action>
 			</v-list-tile>
 		</template>
 	</v-list>
@@ -36,18 +33,34 @@
     export default {
         props: ['arrayNotificacoes'],
         data: () => ({
-						items: [{ header: 'Today' }],
+            items: [],
+		        layout:{
+                header: 'Notifications',
+				        divider: true,
+				        inset: true,
+		        }
         }),
-		    watch:{
+		    methods:{
+            takeMethere: function (rota) {
+                console.log(rota);
+		            this.$router.push(""+rota);
+            },
+				    clean(index){
+                this.items.splice(index,1);
+                this.$emit('clean', -1);
+				    }
+		    },
+        watch: {
             arrayNotificacoes: function (newVal) {
-                console.log("View:", newVal);
+                this.$toasted.show('New Notification Arrived Check!');
                 this.items.push(newVal);
-		            return this.items.push( { divider: true, inset: true });
-            }
-		    }
+                console.log(this.items);
+                this.isOrderUpdated = true;
+                return this.items.push();
+            },
+        }
     }
 </script>
-
 <style scoped>
 
 </style>

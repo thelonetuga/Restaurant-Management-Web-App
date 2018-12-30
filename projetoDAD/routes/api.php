@@ -32,6 +32,8 @@ Route::get('users/unblocked', 'UserController@getUnblockUsers');
 Route::get('invoices', 'InvoicesController@index');
 Route::get('invoices/pending', 'InvoicesController@getPendingInvoces');
 Route::post('invoices/create', 'InvoicesController@store');
+Route::patch('invoice/{id}/meal/{meal_id}/change/state/pending', 'InvoicesController@changeStateToNotPaid');
+Route::patch('/meal/{id}/change/state/terminated', 'MealsController@changeStateToNotPaid');
 
 //ORDERS
 Route::get('orders', 'OrdersController@index');
@@ -64,7 +66,7 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('users/delete/{id}', 'UserController@delete');
     Route::patch('user/unblock/{id}', 'UserController@unblockUser');
     Route::patch('user/block/{id}', 'UserController@blockUser');
-    //Rotas para cashier
+    //Rotas para orders
 
 });
 
@@ -84,7 +86,10 @@ Route::group([
 
 Route::put('orders/{id}', 'OrdersController@update');
 
-Route::get('/cook/orders/{responsible_cook_id}', 'OrdersController@cookOrders');
+Route::get('cook/orders/pending', 'OrdersController@noCookOrders');
+Route::get('cook/orders/{responsible_cook_id}', 'OrdersController@cookOrders');
+Route::patch('order/change/state/confirmed/{id}','OrdersController@changeStateAfter5Sec');
+
 Route::get('/waiter/{responsible_waiter_id}/orders/pendingconfirmed', 'OrdersController@waiterPendingConfirmedOrders');
 Route::get('/waiter/{responsible_waiter_id}/orders/prepared', 'OrdersController@waiterPreparedOrders');
 Route::get('/freetables', 'TablesController@getFreeTables');
@@ -97,10 +102,6 @@ Route::post('/orders/multiple', 'OrdersController@storeMultiple');
 Route::delete('orders/delete/{id}', 'OrdersController@delete');
 
 Route::get('orders/meal/{id}', 'OrdersController@ordersByMeal');
-
-
-
-
 Route::get('/invoices/pending', 'InvoicesController@pendingInvoices');
 Route::get('/invoices/all', 'InvoicesController@allInvoices');
 Route::patch('/invoices/pending/{id}', 'InvoicesController@update');

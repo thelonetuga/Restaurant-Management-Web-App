@@ -4,17 +4,41 @@
       <v-container fluid fill-height>
         <v-layout align-center>
           <v-container>
-            <v-card height="400px" width="400px">
-              <v-img :src="'/storage/items/'+item.photo_url" fluid alt="Image" aspect-ratio="2.75"></v-img>
-              <v-card-title primary-title>
-                <div>
-                  <h3 class="headline mb-2">{{item.name}}</h3>
-                  <h4 class="black--text headline mb-2">{{item.price}}€</h4>
-                  <h5 class="black--text headline mb-2">{{item.type}}</h5>
-                  <span class="grey--text">{{item.description}}</span>
-                </div>
-              </v-card-title>
-            </v-card>
+            <v-hover>
+              <v-card
+                      slot-scope="{ hover }"
+                      class="mx-auto"
+                      color="grey lighten-4"
+                      max-width="600"
+              >
+                <v-img
+                        :aspect-ratio="16/9"
+                        height="200px"
+                        :src="'/storage/items/'+item.photo_url"
+                >
+                  <v-expand-transition>
+                    <div
+                            v-if="hover"
+                            class="d-flex transition-fast-in-fast-out blue darken-2 v-card--reveal display-3 white--text"
+                            style="height: 100%;"
+                    >
+                      {{item.price}}€
+                    </div>
+                  </v-expand-transition>
+                </v-img>
+                <v-card-text
+                        class="pt-4"
+                        style="position: relative;"
+                >
+                  <div class="font-weight-light grey--text title mb-2" v-if="item.type === 'drink'">Drink</div>
+                  <div class="font-weight-light grey--text title mb-2" v-else>Dish</div>
+                  <h3 class="display-1 font-weight-light blue--text mb-2">{{item.name}}</h3>
+                  <div class="font-weight-light  grey--text  title mb-2">
+                    {{item.description}}
+                  </div>
+                </v-card-text>
+              </v-card>
+            </v-hover>
           </v-container>
           <v-flex xs12 sm8 md4>
             <v-card class="elevation-12">
@@ -163,6 +187,7 @@ export default {
         .post("/api/items/upload", formData)
         .then(response => {
           // this.$toastr.s("All images uplaoded successfully");
+          this.$socket.emit('item_changed', response.data.data);
           this.images = [];
           this.files = [];
         })
@@ -176,6 +201,7 @@ export default {
         .patch("api/items/" + this.item.id, this.item)
         .then(response => {
           Object.assign(this.item, response.data.data);
+          this.$socket.emit('item_changed', response.data.data);
           this.$emit("item-saved", this.item);
         })
         .catch(function(error) {

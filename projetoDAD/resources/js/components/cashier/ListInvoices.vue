@@ -48,6 +48,7 @@
 import ListDetailInvoices from "../cashier/ListDetailInvoices";
 
 export default {
+  props:['updateInvoiceTable'],
   data() {
     return {
       dialog: false,
@@ -73,7 +74,7 @@ export default {
       },
       defaultTable: {
         nif: "",
-        name: ""
+        name: "",
       }
     };
   },
@@ -117,6 +118,7 @@ export default {
           )
           .then(function(response) {
             // handle succes
+            this.$socket.emit('invoice_changed', response.data.data);
             console.log("axios", response.data.data);
           })
           .catch(function(error) {
@@ -142,6 +144,10 @@ export default {
   watch: {
     dialog(val) {
       val || this.close();
+    },
+    updateInvoiceTable: function (newVal) {
+      this.$toasted.show('Invoice "' + newVal.changedInvoice.id + 'has changed');
+      this.fetchPendingInvoices();
     }
   },
   created() {

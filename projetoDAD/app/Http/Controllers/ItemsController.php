@@ -54,7 +54,6 @@ class ItemsController extends Controller
         $item = new Items();
 
         $file = Input::file('images');
-        var_dump($file);
         $filename = $file->getClientOriginalName();
         $ext = $file->getClientOriginalExtension();
         $uploadedFile = str_random(10) . '.' . $ext;
@@ -121,7 +120,7 @@ class ItemsController extends Controller
     public function delete($id)
     {
         $item = Items::findOrFail($id);
-        $item->delete();
-        return response()->json(null, 204);
+        $item->forceDelete();
+        return response()->json(new ItemsResource($item), 204);
     }
 }

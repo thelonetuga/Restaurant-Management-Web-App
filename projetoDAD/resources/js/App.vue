@@ -7,8 +7,8 @@
                     @setDashboard="setDash"
                     v-if="showNav"
             ></navbar>
-            <router-view :messageToReportChannel="msgReportTextArea" :messageToGlobalChannel="msgGlobalTextArea" :messageToManagerChannel="msgManagerTextArea" @loginMessage="loginSuccess" @hideMessage="hideSuccess" @removeDashboard="removeDash"  @setDashboard="setDash"></router-view>
-            <notificationBar :arrayNotificationReportChannel="notificationMsgTextArea" v-if="isLogged"></notificationBar>
+            <router-view :updateMealTable="mealChanged" :updateInvoiceTable="invoiceChanged" :updateTable="tableChanged" :updateItemList="itemChanged" :updateOrderTable="orderChanged" :messageToReportChannel="msgReportTextArea" :messageToGlobalChannel="msgGlobalTextArea" :messageToManagerChannel="msgManagerTextArea" @loginMessage="loginSuccess" @hideMessage="hideSuccess" @removeDashboard="removeDash"  @setDashboard="setDash"></router-view>
+            <notificationBar :updateMealTable="mealChanged" :updateInvoiceTable="invoiceChanged" :updateTable="tableChanged" :updateItemList="itemChanged" :updateOrderTable="orderChanged" :arrayNotificationReportChannel="notificationMsgTextArea" v-if="isLogged"></notificationBar>
         </div>
     </v-app>
 </template>
@@ -23,6 +23,12 @@
             alert: true,
             message: "",
             showNav: true,
+            orderChanged: "",
+            itemChanged:"",
+            mealChanged:"",
+            invoiceChanged:"",
+            tableChanged:"",
+            userChanged:"",
             msgManagerTextArea: "",
             msgGlobalTextArea:"",
             msgReportTextArea:"",
@@ -37,10 +43,10 @@
                 this.showNav = true;
             },
             loginSuccess: function() {
-                this.$toasted.show('User authenticated correctly');
+                this.$toasted.success('User authenticated correctly');
             },
             logoutSuccess: function() {
-                this.$toasted.show('User has logged out correctly');
+                this.$toasted.success('User has logged out correctly');
                 this.$store.commit("setManager");
                 this.showNav = true;
             },
@@ -84,10 +90,69 @@
                 console.log("Notification Box UserInfo: ",dataFromServer);
                // this.notificationMsgTextArea = dataFromServer + '\n' + this.notificationMsgTextArea ;
                 this.notificationMsgTextArea = dataFromServer;
-            }
+            },
+            order_changed(dataFromServer){
+                this.orderChanged = dataFromServer;
+                console.log("App: "+ dataFromServer.changedOrder.id +" has changed");
+            },
+            order_created(dataFromServer){
+                this.orderChanged = dataFromServer;
+                console.log("App: "+ dataFromServer.changedOrder.id +" has created");
+            },
+            order_deleted(dataFromServer){
+                this.orderChanged = dataFromServer;
+                console.log("App: "+ dataFromServer.changedOrder.id +" has deleted");
+            },
+            item_changed(dataFromServer){
+                this.itemChanged = dataFromServer;
+                console.log("App(Item): "+ dataFromServer.changedItem.id +" has changed");
+            },
+            item_created(dataFromServer){
+                this.itemChanged = dataFromServer;
+                console.log("App(Item): "+ dataFromServer.changedItem.id +" has created");
+            },
+            item_deleted(dataFromServer){
+                this.itemChanged = dataFromServer;
+                console.log("App(Item): "+ dataFromServer.changedItem.id +" has deleted");
+            },
+            meal_changed(dataFromServer){
+                this.mealChanged = dataFromServer;
+                console.log("App(Meal): "+ dataFromServer.changedMeal.id +" has changed");
+            },
+            meal_created(dataFromServer){
+                this.mealChanged = dataFromServer;
+                console.log("App(Meal): "+ dataFromServer.changedMeal.id +" has created");
+            },
+            meal_deleted(dataFromServer){
+                this.mealChanged = dataFromServer;
+                console.log("App(Meal): "+ dataFromServer.changedMeal.id +" has deleted");
+            },
+            invoice_changed(dataFromServer){
+                this.invoiceChanged = dataFromServer;
+                console.log("App(Invoice): "+ dataFromServer.changedInvoice.id +" has changed");
+            },
+            invoice_created(dataFromServer){
+                this.invoiceChanged = dataFromServer;
+                console.log("App(Invoice): "+ dataFromServer.changedInvoice.id +" has created");
+            },
+            invoice_deleted(dataFromServer){
+                this.invoiceChanged = dataFromServer;
+                console.log("App(Invoice): "+ dataFromServer.changedInvoice.id +" has deleted");
+            },
+            table_changed(dataFromServer){
+                this.tableChanged = dataFromServer;
+                console.log("App(Table): "+ dataFromServer.changedInvoice.id +" has changed");
+            },
+            table_created(dataFromServer){
+                this.tableChanged = dataFromServer;
+                console.log("App(Table): "+ dataFromServer.changedTable.id +" has created");
+            },
+            table_deleted(dataFromServer){
+                this.tableChanged = dataFromServer;
+                console.log("App(Table): "+ dataFromServer.changedTable.id +" has deleted");
+            },
         },
         mounted() {
-            console.log("App: ",this.msgGlobalTextArea);
             this.$store.commit("getItems");
             this.$store.commit("loadTokenAndUserFromSession");
         }

@@ -1,64 +1,67 @@
 <template>
-    <v-app>
-        <div class="text-xs-center">
-            <v-pagination
-                v-model="pagination.current_page"
-                :length="pagination.last_page"
-                :input="pagination.current_page"
-                @next="fetchOrders(pagination.next_page_url)"
-                @previous="fetchOrders(pagination.prev_page_url)"
-                circle>
-            </v-pagination>
-        </div>
-        <v-toolbar flat>
-            <v-toolbar-title>List of Orders</v-toolbar-title>
-        </v-toolbar>
-        <v-data-table
-            :headers="headers"
-            :items="orders"
-            hide-actions
-            class="elevation-1">
-            <template slot="items" slot-scope="props">
-                <tr @click="props.expanded = !props.expanded">
-                    <td v-bind:style="[props.item.state === 'confirmed' ? {'backgroundColor': theme.primary}: {}]">
-                        {{props.item.id }}
-                    </td>
-                    <td class="text-xs-left"
-                        v-bind:style="[props.item.state === 'confirmed' ? {'backgroundColor': theme.primary}: {}]">
-                        {{props.item.state }}
-                    </td>
-                    <td class="text-xs-left"
-                        v-bind:style="[props.item.state === 'confirmed' ? {'backgroundColor': theme.primary}: {}]">
-                        {{props.item.item === null ? '':props.item.item.name }}
-                    </td>
-                    <td class="text-xs-left"
-                        v-bind:style="[props.item.state === 'confirmed' ? {'backgroundColor': theme.primary}: {}]">
-                        {{props.item.created_at }}
-                    </td>
-                    <td class="text-xs-left"
-                        v-bind:style="[props.item.state === 'confirmed' ? {'backgroundColor': theme.primary}: {}]">
-                        {{props.item.updated_at }}
-                    </td>
-                </tr>
-            </template>
-            <template slot="expand" slot-scope="props">
-                <v-btn v-if="props.item.state === 'in preparation'" v-on:click.prevent="setPrepared(props.item, 'prepared')" style="margin-left: 15%"
-                       color="success">Set
-                    Prepared
-                </v-btn>
-                <v-btn v-if="props.item.state === 'confirmed'" v-on:click.prevent="setPrepared(props.item, 'in preparation')" style="margin-left: 15%"
-                       color="info">Set
-                    In Preparation
-                </v-btn>
-            </template>
-        </v-data-table>
-    </v-app>
+	<v-app>
+		<div class="text-xs-center">
+			<v-pagination
+							v-model="pagination.current_page"
+							:length="pagination.last_page"
+							:input="pagination.current_page"
+							@next="fetchOrders(pagination.next_page_url)"
+							@previous="fetchOrders(pagination.prev_page_url)"
+							circle>
+			</v-pagination>
+		</div>
+		<v-toolbar flat>
+			<v-toolbar-title>My Orders</v-toolbar-title>
+		</v-toolbar>
+		<v-data-table
+						:headers="headers"
+						:items="orders"
+						hide-actions
+						class="elevation-1">
+			<template slot="items" slot-scope="props">
+				<tr @click="props.expanded = !props.expanded">
+					<td v-bind:style="[props.item.state === 'confirmed' ? {'backgroundColor': theme.primary}: {}]">
+						{{props.item.id }}
+					</td>
+					<td class="text-xs-left"
+					    v-bind:style="[props.item.state === 'confirmed' ? {'backgroundColor': theme.primary}: {}]">
+						{{props.item.state }}
+					</td>
+					<td class="text-xs-left"
+					    v-bind:style="[props.item.state === 'confirmed' ? {'backgroundColor': theme.primary}: {}]">
+						{{props.item.item === null ? '':props.item.item.name }}
+					</td>
+					<td class="text-xs-left"
+					    v-bind:style="[props.item.state === 'confirmed' ? {'backgroundColor': theme.primary}: {}]">
+						{{props.item.created_at }}
+					</td>
+					<td class="text-xs-left"
+					    v-bind:style="[props.item.state === 'confirmed' ? {'backgroundColor': theme.primary}: {}]">
+						{{props.item.updated_at }}
+					</td>
+				</tr>
+			</template>
+			<template slot="expand" slot-scope="props">
+				<v-btn v-if="props.item.state === 'in preparation'" v-on:click.prevent="setPrepared(props.item, 'prepared')"
+				       style="margin-left: 15%"
+				       color="success">Set
+					Prepared
+				</v-btn>
+				<v-btn v-if="props.item.state === 'confirmed'" v-on:click.prevent="setPrepared(props.item, 'in preparation')"
+				       style="margin-left: 15%"
+				       color="info">Set
+					In Preparation
+				</v-btn>
+			</template>
+		</v-data-table>
+	</v-app>
 </template>
 
 
 <script>
 
     export default {
+        props:['updateOrderTable'],
         data() {
             return {
                 headers: [
@@ -109,6 +112,7 @@
         methods: {
             fetchOrders(page_url) {
                 let vm = this;
+                console.log(this.$store.state.user.id);
                 page_url = page_url || "/api/cook/orders/" + this.$store.state.user.id;
                 axios
                     .get(page_url)
@@ -140,6 +144,11 @@
                     .then(response => {
                         Object.assign(item, response.data.data);
                         this.$emit("item-saved", item);
+                        let data ={
+                            type: item.state === 'prepared' ? 3 : 2,
+                            order: response.data.data
+                        };
+                        this.$socket.emit('order_changed', data);
                     })
                     .catch(function (error) {
                         // handle error
@@ -149,10 +158,14 @@
                         // always executed
                     });
             }
-
-        }
-    }
-    ;
+        },
+		    watch:{
+            updateOrderTable: function () {
+                this.$toasted.success('Table Orders updated');
+                this.fetchOrders();
+            }
+		    },
+    };
 </script>
 <
 style

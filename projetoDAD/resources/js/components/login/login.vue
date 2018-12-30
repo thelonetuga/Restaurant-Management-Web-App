@@ -73,7 +73,7 @@ export default {
           this.$emit("loginMessage");
           this.$emit("hideMessage");
           this.$router.push("/");
-          console.log("Login Button: UserResource", this.$store.state.user);
+          console.log("Login Button: ", this.$store.state.user);
           this.loginTrigger = false;
         })
         .catch(error => {

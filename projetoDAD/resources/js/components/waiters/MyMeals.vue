@@ -138,7 +138,9 @@
 
 <script>
     import CreateMeal from './CreateMeal.vue'
+
     export default {
+        props: ['updateMealTable'],
         data() {
             return {
                 headers: [
@@ -197,7 +199,6 @@
         },
         created() {
             this.fetchMeals();
-
         },
         methods: {
             fetchMeals(page_url) {
@@ -232,13 +233,11 @@
             fetchItems(page_url) {
                 let vm = this;
                 page_url = page_url || "/api/items";
-                axios
-                    .get(page_url)
-                    .then(function (response) {
-                        // handle success
-                        vm.items = response.data.data;
-                        vm.makePagination(response.data.meta, response.data.links);
-                    })
+                axios.get(page_url).then(function (response) {
+                    // handle success
+                    vm.items = response.data.data;
+                    vm.makePagination(response.data.meta, response.data.links);
+                })
                     .catch(function (error) {
                         // handle error
                         console.log(error);
@@ -251,15 +250,40 @@
                 this.dialog = false;
                 this.postMeal(this.edited_meal);
             },
-            closeDialog(){
-              this.dialogCreate = false;
+            closeDialog() {
+                this.dialogCreate = false;
+                this.fetchMeals();
             },
             postMeal(edited_meal) {
+                let vm = this;
                 axios
                     .post("api/orders/multiple", edited_meal)
                     .then(response => {
-                        Object.assign(edited_meal, response.data.data);
+                        response.data.forEach((order) => {
+                            setTimeout(function() {
+                                axios.patch("api/order/change/state/confirmed/"+order.id)
+                                        .then(response => {
+                                            let data = {
+                                                type: 1,
+                                                order: response.data.data
+                                            };
+                                            vm.$socket.emit('order_changed', data);
+                                        })
+                                        .catch(function (error) {
+                                            // handle error
+                                            console.log(error.response.data.message);
+                                        })
+                                        .then(function () {
+                                            // always executed
+                                        });
+                            }, 5000);
+                            this.$socket.emit('order_created', order);
+                        });
+                        Object.assign(edited_meal, response.data);
                         this.$emit("order-saved", edited_meal);
+                        vm.edited_meal.items = [];
+                        this.fetchMeals();
+                        this.fetchItems();
                     })
                     .catch(function (error) {
                         // handle error
@@ -289,7 +313,6 @@
                 let vm = this;
                 for (var i = 0; i < orders.length; i++) {
                     if (orders[i].state !== "delivered" && check) {
-
                         this.youSure = true;
                     }
                 }
@@ -302,8 +325,12 @@
                     this.invoice.meal_id = this.info_meal.meal.id;
                     axios.put("api/meals/" + this.info_meal.meal.id, this.info_meal.meal)
                         .then(response => {
+                          this.$socket.emit('meal_changed', response.data.data);
                             console.log('meal updated');
                             vm.createInvoice();
+                            this.fetchMeals();
+                            this.fetchItems();
+                            this.infoItem();
                         })
                         .catch(function (error) {
                             // handle error
@@ -321,13 +348,15 @@
             },
             closeOrder(order) {
                 if (order.state !== "delivered") {
-
                     order.state = "not delivered";
-
                     axios.put("api/orders/" + order.id, order)
                         .then(response => {
+                            let data ={
+                                type: 5,
+                                order: response.data.data
+                            };
+                            this.$socket.emit('order_changed', data);
                             console.log('order updated');
-
                         })
                         .catch(function (error) {
                             // handle error
@@ -352,6 +381,7 @@
             createInvoice() {
                 axios.post("api/invoices/create", this.invoice)
                     .then(response => {
+                        this.$socket.emit('invoice_created', response.data.data);
                         console.log('invoice created');
                     })
                     .catch(function (error) {
@@ -363,8 +393,15 @@
                     });
             },
         },
-        components:{
+        components: {
             'create_meal': CreateMeal,
+        },
+        watch: {
+            updateMealTable: function (newVal) {
+                this.$toasted.show('Meal "' + newVal.changedMeal.id + 'has changed');
+                this.$toasted.success('Table Meals updated');
+                this.fetchMeals();
+            }
         }
     };
 </script>

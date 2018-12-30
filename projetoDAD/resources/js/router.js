@@ -6,20 +6,35 @@ import UsersList from "./components/allworkers/ListUsers.vue";
 import Register from "./components/register/register.vue";
 import Login from "./components/login/login.vue";
 import PrivateDashboard from "./views/Dashboard.vue";
-import ManagerDashboard from "./components/manager/manager.vue";
+
 import Home from "./views/Home.vue";
 import UserProfile from "./components/allworkers/UsersInfo.vue";
 import MainDashboard from "./components/allworkers/MainDashboard.vue";
 import Confirmation from "./components/password/confirmation.vue";
-import ListInvoices from "./components/cashier/ListInvoices.vue";
+
+
+//Manager Routes
 import listTables from "./components/manager/listTables.vue";
-import CookOrders from "./components/cooks/ListMyOrders.vue";
+import ManagerDashboard from "./components/manager/manager.vue";
+import listManagerInvoices from "./components/manager/summary/invoices/list.vue";
+
+//Cashier Routes
+import ListInvoices from "./components/cashier/ListInvoices.vue";
+import CashierDashboard from "./components/cashier/dashCashier";
+
+//Waiter Routes
 import CreateMeal from "./components/waiters/CreateMeal.vue";
 import MyMeals from "./components/waiters/MyMeals.vue";
 import WaiterOrders from "./components/waiters/MyOrders.vue";
-import CookDashboard from "./components/cooks/dashCook";
 import WaiterDashboard from "./components/waiters/dashWaiter";
-import CashierDashboard from "./components/cashier/dashCashier";
+
+//Cook Routes
+import CookOrders from "./components/cooks/ListMyOrders.vue";
+import CookDashboard from "./components/cooks/dashCook";
+
+
+
+
 
 
 Vue.use(VueRouter);
@@ -81,6 +96,15 @@ const router = new VueRouter({
                         name: 'register',
                         component: Register,
                     },
+                    {
+                        path: 'summary/invoices/list',
+                        name: 'listManagerInvoices',
+                        component: listManagerInvoices,
+                        props: true,
+                        meta: {
+                            middleware: true
+                        }
+                    }
                 ],
             },
             {
