@@ -15,9 +15,12 @@
 				</td>
 			</template>
 		</v-data-table>
+		<br>
+		<listAllInvoices></listAllInvoices>
 	</div>
 </template>
 <script>
+    import ListDetailInvoices from '../../../cashier/ListDetailInvoices';
     export default {
         props: ['updateInvoiceTable'],
         data() {
@@ -76,7 +79,7 @@
             },
         },
         components: {
-
+						'listAllInvoices': ListDetailInvoices,
         },
         computed: {},
         watch: {

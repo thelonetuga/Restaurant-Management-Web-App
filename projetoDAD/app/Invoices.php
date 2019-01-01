@@ -14,6 +14,11 @@ class Invoices extends Model
         return $this->hasOne(Meals::class, 'id', 'meal_id');
     }
 
+    public function item()
+    {
+        return $this->hasMany(Items::class, 'id', 'meal_id');
+    }
+
     public function items()
     {
         return $this->belongsToMany(Items::class, 'invoice_items', 'invoice_id', 'item_id')->withPivot('quantity', 'unit_price', 'sub_total_price');

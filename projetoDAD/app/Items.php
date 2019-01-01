@@ -16,7 +16,7 @@ class Items extends Model
     ];
 
     public function order(){
-        return $this->belongsTo(Orders::class, 'item_id','id');
+        return $this->hasOne(Orders::class, 'item_id','id');
     }
 
     public function invoice_item(){

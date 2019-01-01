@@ -3,7 +3,6 @@ import VueRouter from 'vue-router';
 import store from './vuex.js';
 import ItemsList from "./components/items/ItemsList.vue";
 import UsersList from "./components/allworkers/ListUsers.vue";
-import Register from "./components/register/register.vue";
 import Login from "./components/login/login.vue";
 import PrivateDashboard from "./views/Dashboard.vue";
 
@@ -91,10 +90,6 @@ const router = new VueRouter({
                         path: 'listusers',
                         name: 'listusers',
                         component: UsersList,
-                    }, {
-                        path: 'register',
-                        name: 'register',
-                        component: Register,
                     },
                     {
                         path: 'summary/invoices/list',

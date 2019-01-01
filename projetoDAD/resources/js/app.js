@@ -16,14 +16,16 @@ import VeeValidate from 'vee-validate';
 import store from './vuex.js';
 import VueSocketio from 'vue-socket.io';
 import Toasted from 'vue-toasted';
+import jsPDF from 'jspdf';
 // install plugin with options
 Vue.use(Vuetify);
 Vue.use(VueRouter);
 Vue.use(VeeValidate);
+Vue.use(jsPDF);
 //Vue.use(Chat);
 Vue.use(new VueSocketio({
     debug: true,
-    connection: 'http://127.0.0.1:8080'
+    connection: 'http://127.0.0.1:9999'
 }));
 
 Vue.use(Toasted, {

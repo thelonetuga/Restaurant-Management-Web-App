@@ -29,22 +29,27 @@ var io = require("socket.io")(app);
 
 var LoggedUsers = require("./loggedusers.js");
 
-app.listen(8080, function () {
-  console.log("listening on *:8080");
+app.listen(9999, function() {
+  console.log("listening on *:9999");
 });
 
 let loggedUsers = new LoggedUsers();
 
-io.on("connection", function (socket) {
+io.on("connection", function(socket) {
   console.log("client has connected (socket ID = " + socket.id + ")");
-  socket.on("msg_from_client", function (msg, userInfo) {
+  socket.on("msg_from_client", function(msg, userInfo) {
     if (userInfo === undefined) {
       io.sockets.emit("msg_from_server", 'User Unknown: "' + msg + '"');
     } else {
       io.sockets.emit("msg_from_server", userInfo.name + ': "' + msg + '"');
     }
   });
-  socket.on("user_enter", function (user) {
+
+  socket.on("shift_update", function(msg) {
+    socket.emit("shift_update", msg);
+  });
+
+  socket.on("user_enter", function(user) {
     if (user !== undefined && user !== null) {
       if (user.type == "manager") {
         socket.join("manager");
@@ -67,7 +72,7 @@ io.on("connection", function (socket) {
       loggedUsers.addUserInfo(user, socket.id);
     }
   });
-  socket.on("user_exit", function (user) {
+  socket.on("user_exit", function(user) {
     if (user !== undefined && user !== null) {
       if (user.type == "manager") {
         socket.leave("manager");
@@ -90,7 +95,7 @@ io.on("connection", function (socket) {
       loggedUsers.removeUserInfoByID(user.id);
     }
   });
-  socket.on("msg_from_worker_manager", function (msg, userInfo) {
+  socket.on("msg_from_worker_manager", function(msg, userInfo) {
     if (userInfo !== undefined || userInfo.type == "manager") {
       let channelName = "manager";
       io.sockets
@@ -100,7 +105,7 @@ io.on("connection", function (socket) {
   });
 
   //US8
-  socket.on("msg_from_worker_report_manager", function (msg, userInfo) {
+  socket.on("msg_from_worker_report_manager", function(msg, userInfo) {
     if (userInfo !== undefined) {
       let channelName = "report";
       socket.broadcast
@@ -122,13 +127,14 @@ io.on("connection", function (socket) {
 
   //Orders
   //US10 //US16
-  socket.on("order_changed", function (changedOrder) {
+  socket.on("order_changed", function(changedOrder) {
     if (changedOrder.type === 1) {
       socket.broadcast.to("cook").emit("order_changed", {
         icon: "local_grocery_store",
         iconClass: "blue white--text",
         title: "Order",
-        subtitle: "Order: " + changedOrder.order.id + " has changed to confirmed.",
+        subtitle:
+          "Order: " + changedOrder.order.id + " has changed to confirmed.",
         changedOrder: changedOrder.order,
         actionRoute: "/privatedashboard/cook"
       });
@@ -137,7 +143,8 @@ io.on("connection", function (socket) {
         icon: "local_grocery_store",
         iconClass: "blue white--text",
         title: "Order",
-        subtitle: "Order: " + changedOrder.order.id + " has changed to confirmed.",
+        subtitle:
+          "Order: " + changedOrder.order.id + " has changed to confirmed.",
         changedOrder: changedOrder.order,
         actionRoute: "/privatedashboard/manager"
       });
@@ -146,7 +153,8 @@ io.on("connection", function (socket) {
         icon: "local_grocery_store",
         iconClass: "blue white--text",
         title: "Order",
-        subtitle: "Order: " + changedOrder.order.id + " has changed to confirmed.",
+        subtitle:
+          "Order: " + changedOrder.order.id + " has changed to confirmed.",
         changedOrder: changedOrder.order,
         actionRoute: "/privatedashboard/waiter"
       });
@@ -177,7 +185,6 @@ io.on("connection", function (socket) {
         changedOrder: changedOrder.order,
         actionRoute: "/privatedashboard/waiter"
       });
-
     } else if (changedOrder.type === 3) {
       socket.broadcast.to("cook").emit("order_changed", {
         icon: "local_grocery_store",
@@ -232,7 +239,6 @@ io.on("connection", function (socket) {
         changedOrder: changedOrder.order,
         actionRoute: "/privatedashboard/waiter"
       });
-
     } else if (changedOrder.type === 5) {
       socket.broadcast.to("cook").emit("order_changed", {
         icon: "local_grocery_store",
@@ -290,7 +296,7 @@ io.on("connection", function (socket) {
     }
   });
 
-  socket.on("order_created", function (changedOrder) {
+  socket.on("order_created", function(changedOrder) {
     socket.broadcast.to("cook").emit("order_created", {
       icon: "local_grocery_store",
       iconClass: "green white--text",
@@ -319,7 +325,7 @@ io.on("connection", function (socket) {
     });
   });
 
-  socket.on("order_deleted", function (changedOrder) {
+  socket.on("order_deleted", function(changedOrder) {
     socket.broadcast.to("cook").emit("order_deleted", {
       icon: "local_grocery_store",
       iconClass: "red white--text",
@@ -352,7 +358,7 @@ io.on("connection", function (socket) {
 
   //Invoices
   //US23
-  socket.on("invoice_changed", function (changedInvoice) {
+  socket.on("invoice_changed", function(changedInvoice) {
     socket.broadcast.to("manager").emit("invoice_changed", {
       icon: "receipt",
       iconClass: "blue white--text",
@@ -372,7 +378,7 @@ io.on("connection", function (socket) {
     });
   });
 
-  socket.on("invoice_created", function (changedInvoice) {
+  socket.on("invoice_created", function(changedInvoice) {
     socket.broadcast.to("manager").emit("invoice_created", {
       icon: "receipt",
       iconClass: "green white--text",
@@ -392,7 +398,7 @@ io.on("connection", function (socket) {
     });
   });
 
-  socket.on("invoice_deleted", function (changedInvoice) {
+  socket.on("invoice_deleted", function(changedInvoice) {
     socket.broadcast.to("manager").emit("invoice_deleted", {
       icon: "receipt",
       iconClass: "green white--text",
@@ -414,7 +420,7 @@ io.on("connection", function (socket) {
 
   //Meals
   //US33 -> invoice change to not paid and meal to so notificaton must be send
-  socket.on("meal_changed", function (changedMeal) {
+  socket.on("meal_changed", function(changedMeal) {
     socket.broadcast.to("manager").emit("meal_changed", {
       icon: "restaurant",
       iconClass: "blue white--text",
@@ -443,7 +449,7 @@ io.on("connection", function (socket) {
     });
   });
 
-  socket.on("meal_created", function (changedMeal) {
+  socket.on("meal_created", function(changedMeal) {
     socket.broadcast.to("manager").emit("meal_created", {
       icon: "restaurant",
       iconClass: "green white--text",
@@ -472,7 +478,7 @@ io.on("connection", function (socket) {
     });
   });
 
-  socket.on("meal_deleted", function (changedMeal) {
+  socket.on("meal_deleted", function(changedMeal) {
     socket.broadcast.to("manager").emit("meal_deleted", {
       icon: "restaurant",
       iconClass: "red white--text",
@@ -502,7 +508,7 @@ io.on("connection", function (socket) {
   });
 
   //tables
-  socket.on("table_created", function (changedTable) {
+  socket.on("table_created", function(changedTable) {
     socket.broadcast.to("manager").emit("table_created", {
       icon: "airline_seat_recline_normal",
       iconClass: "green white--text",
@@ -522,7 +528,7 @@ io.on("connection", function (socket) {
     });
   });
 
-  socket.on("table_changed", function (changedTable) {
+  socket.on("table_changed", function(changedTable) {
     socket.broadcast.to("manager").emit("table_changed", {
       icon: "airline_seat_recline_normal",
       iconClass: "blue white--text",
@@ -542,7 +548,7 @@ io.on("connection", function (socket) {
     });
   });
 
-  socket.on("table_deleted", function (changedTable) {
+  socket.on("table_deleted", function(changedTable) {
     socket.broadcast.to("manager").emit("table_deleted", {
       icon: "airline_seat_recline_normal",
       iconClass: "red white--text",
@@ -563,7 +569,7 @@ io.on("connection", function (socket) {
   });
 
   //Items
-  socket.on("item_created", function (changedItem) {
+  socket.on("item_created", function(changedItem) {
     socket.broadcast.emit("item_created", {
       icon: "fastfood",
       iconClass: "green white--text",
@@ -574,7 +580,7 @@ io.on("connection", function (socket) {
     });
   });
 
-  socket.on("item_changed", function (changedItem) {
+  socket.on("item_changed", function(changedItem) {
     socket.broadcast.emit("item_changed", {
       icon: "fastfood",
       iconClass: "blue white--text",
@@ -585,7 +591,7 @@ io.on("connection", function (socket) {
     });
   });
 
-  socket.on("item_deleted", function (changedItem) {
+  socket.on("item_deleted", function(changedItem) {
     socket.broadcast.emit("item_deleted", {
       icon: "fastfood",
       iconClass: "red white--text",
@@ -597,23 +603,23 @@ io.on("connection", function (socket) {
   });
 
   //Users
-  socket.on("user_created", function (changedUser) {
+  socket.on("user_created", function(changedUser) {
     socket.broadcast.emit("user_created", changedUser);
   });
 
-  socket.on("user_deleted", function (changedUser) {
+  socket.on("user_deleted", function(changedUser) {
     socket.broadcast.emit("user_deleted", changedUser);
   });
 
-  socket.on("user_changed", function (changedUser) {
+  socket.on("user_changed", function(changedUser) {
     socket.broadcast.emit("user_changed", changedUser);
   });
 
-  socket.on("user_blocked", function (changedUser) {
+  socket.on("user_blocked", function(changedUser) {
     socket.broadcast.emit("user_blocked", changedUser);
   });
 
-  socket.on("user_unblocked", function (changedUser) {
+  socket.on("user_unblocked", function(changedUser) {
     socket.broadcast.emit("user_unblocked", changedUser);
   });
 });

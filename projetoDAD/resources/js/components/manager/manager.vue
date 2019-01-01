@@ -106,12 +106,6 @@
 				>Global Chat</v-textarea>
 			<v-textarea
 							outline
-							label="Manager Chat"
-							id="textManager" class="inputchat"
-							v-model="msgManagerTextArea" disabled
-			>Global Chat</v-textarea>
-			<v-textarea
-							outline
 							label="Report Chat"
 							id="textReport" class="inputchat"
 							v-model="msgReportTextArea" disabled
@@ -214,12 +208,13 @@
                     .catch(error => {
                         this.$store.commit("clearUserAndToken");
                         this.typeofmsg = "alert-danger";
+                        this.$toasted.show('Logout incorrect. But local credentials were discarded');
                         this.message =
                             "Logout incorrect. But local credentials were discarded";
                         this.showMessage = true;
                         console.log(error);
                     });
-            }
+            },
         },
         components: {
             list_tables: listTables,
@@ -233,6 +228,11 @@
         mounted() {
             this.user = this.$store.state.user;
             this.$emit("removeNav");
+        },
+        sockets:{
+            shift_update(dataFromServer){
+                this.user = this.$store.state.user;
+            }
         },
 		    watch: {
             messageGlobal: function (newVal) {

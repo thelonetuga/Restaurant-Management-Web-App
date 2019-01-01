@@ -1,55 +1,98 @@
 <template>
-	<v-content>
-		<v-container fill-height>
-			<v-layout justify-center align-center>
-				<v-flex shrink>
-					<v-text-field
-									disabled
-									name="last_shift_start"
-									label="Start Shift"
-									id="last_shift_start"
-									type="last_shift_start"
-									v-model="user.last_shift_start"
-					>{{user.last_shift_start}}
-					</v-text-field>
-					<v-layout column v-if="isDisable">
-						<v-btn
-										v-on:click.prevent="shift('start')"
-										color="success"
-										v-if="user.shift_active===0"
-										type="submit"
-						>Start Shift
-						</v-btn>
+	<v-container
+					fluid
+					grid-list-lg
+	>
+		<v-layout row wrap>
+			<v-flex xs4>
+				<v-card color="blue-grey darken-2" class="white--text">
+					<v-layout row align-center justify-end>
+						<v-flex xs7>
+							<v-card-title primary-title>
+								<div>
+									<div class="headline">Start Shift</div>
+									<br>
+									<span
+													disabled
+													name="last_shift_start"
+													label="Start Shift"
+													id="last_shift_start"
+													type="last_shift_start"
+													v-model="user.last_shift_start"
+									>{{user.last_shift_start}}
+							</span>
+								</div>
+							</v-card-title>
+						</v-flex>
+						<v-flex xs5>
+							<v-card-actions>
+								<v-btn
+												v-on:click.prevent="shift('start')"
+												color="success"
+												v-if="user.shift_active===0"
+												type="submit"
+								>Start Shift
+								</v-btn>
+							</v-card-actions>
+						</v-flex>
 					</v-layout>
-				</v-flex>
-			<v-layout justify-center align-center>
-				<v-flex shrink>
-					<v-text-field
-									disabled
-									name="last_shift_end"
-									label="End Shift"
-									id="last_shift_end"
-									type="last_shift_end"
-									v-model="user.last_shift_end"
-					>{{user.last_shift_end}}
-					</v-text-field>
-					<v-layout column v-if="isDisable">
-						<v-btn
-										v-on:click.prevent="shift('end')"
-										color="error"
-										v-if="user.shift_active===1"
-										type="submit"
-						>End Shift
-						</v-btn>
-					</v-layout>
-				</v-flex>
-			</v-layout>
-			<v-flex shrink>
-				<v-text-field disabled label="Time Elapsed" v-model="time">{{time}}</v-text-field>
+				</v-card>
 			</v-flex>
-			</v-layout>
-		</v-container>
-	</v-content>
+
+			<v-flex xs4>
+				<v-card color="blue-grey darken-2" class="white--text">
+					<v-layout align-center justify-center row fill-height>
+						<v-flex xs7>
+							<v-card-title primary-title>
+								<div>
+									<div class="headline">Working Time</div>
+									<br>
+									<span disabled label="Time Elapsed" v-model="time">{{time}}</span>
+								</div>
+							</v-card-title>
+						</v-flex>
+						<v-card-actions>
+						</v-card-actions>
+					</v-layout>
+				</v-card>
+			</v-flex>
+
+			<v-flex xs4>
+				<v-card color="blue-grey darken-2" class="white--text">
+					<v-layout row align-center justify-end>
+						<v-flex xs7>
+							<v-card-title primary-title>
+								<div>
+									<div class="headline">End Shift</div>
+									<br>
+									<span
+													disabled
+													name="last_shift_end"
+													label="End Shift"
+													id="last_shift_end"
+													type="last_shift_end"
+													v-model="user.last_shift_end"
+									>{{user.last_shift_end}}
+							</span>
+								</div>
+							</v-card-title>
+						</v-flex>
+						<v-flex xs5 align-center>
+							<v-card-actions>
+								<v-btn
+												v-on:click.prevent="shift('end')"
+												color="error"
+												v-if="user.shift_active===1"
+												type="submit"
+								>End Shift
+								</v-btn>
+							</v-card-actions>
+						</v-flex>
+					</v-layout>
+				</v-card>
+			</v-flex>
+		</v-layout>
+	</v-container>
 </template>
 
 <script>
@@ -57,13 +100,15 @@
         data: () => ({
             drawer: null,
             isDisable: true,
-            authenticated: false
+            authenticated: false,
+		        user: ""
         }),
 
         props: {
             source: String
         },
         created() {
+            this.user = this.$store.state.user;
         },
         methods: {
             shift(shift) {
@@ -90,6 +135,8 @@
                     .then(response => {
                         Object.assign(this.user, response.data.data);
                         this.$store.commit("setUser", this.user);
+                        this.$socket.emit('shift_update', 'true');
+                        this.updateUser();
                     })
                     .catch(function (error) {
                         // handle error
@@ -100,10 +147,23 @@
                     });
                 this.isDisable = false;
             },
+		        updateUser(){
+                axios.get("api/users/me")
+                    .then(response => {
+                        this.user = response.data.data;
+                    })
+                    .catch(function(error) {
+                        // handle error
+                        console.log(error);
+                    })
+                    .then(function() {
+                        // always executed
+                    });
+		        },
             timeElapsed() {
                 let timepassed = Math.abs(
                     new Date(Date.now()) -
-                    Date.parse( this.$store.state.user.shift_active === 1 ? this.user.last_shift_start : this.user.last_shift_end)
+                    Date.parse(this.$store.state.user.shift_active === 1 ? this.user.last_shift_start : this.user.last_shift_end)
                 );
                 return this.parseMillisecondsIntoReadableTime(timepassed);
             },
@@ -136,12 +196,9 @@
             }
         },
         computed: {
-            user: function () {
-                return this.$store.state.user;
-            },
             time: function () {
                 return this.timeElapsed();
             }
-        }
+        },
     };
 </script>

@@ -33,7 +33,7 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="primary" v-on:click.prevent="login">Sign In</v-btn>
+                <v-btn color="primary" v-on:click.prevent="checkIsUnlocked">Sign In</v-btn>
               </v-card-actions>
             </v-card>
           </v-flex>
@@ -58,6 +58,23 @@ export default {
     };
   },
   methods: {
+    checkIsUnlocked: function(){
+      let vm = this;
+      axios.get("/api/users/"+this.user.email)
+              .then(function (response) {
+                if (response.data.data[0].blocked === 0){
+                  vm.login();
+                }else {
+                  vm.$toasted.show('User Blocked');
+                }
+              })
+              .catch(function (error) {
+                console.log(error);
+              })
+              .then(function () {
+                // always executed
+              });
+    },
     login() {
       this.showMessage = false;
       axios

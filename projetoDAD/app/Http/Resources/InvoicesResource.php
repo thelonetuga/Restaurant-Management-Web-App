@@ -22,10 +22,8 @@ class InvoicesResource extends JsonResource
             'date' => $this->date,
             'meals' => $this->meals,
             'waiter_name' => $this->meals->user()->value('name'),
-            'item_name' => $this->items()->value('name'),
-            'quantity' => $this->items()->first()->pivot->quantity,
-            'unit_price' => $this->items()->first()->pivot->unit_price,
-            'sub_total_price' => $this->items()->first()->pivot->sub_total_price,
+            'order_state' => $this->meals->order()->value('state'),
+            'item' => $this->items,
         ];
     }
 }

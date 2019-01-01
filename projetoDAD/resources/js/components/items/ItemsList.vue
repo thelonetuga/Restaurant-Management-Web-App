@@ -54,7 +54,7 @@
 												class="pt-4"
 												style="position: relative;"
 								>
-									<v-flex xs1 -if="currentUser.type === 'manager'">
+									<v-flex xs1 v-if="currentUser != null && currentUser.type === 'manager'">
 										<v-btn
 														absolute
 														color="orange"

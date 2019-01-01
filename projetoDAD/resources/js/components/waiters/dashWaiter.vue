@@ -113,7 +113,7 @@
     import switchShift from "../reuse/shift";
 
     export default {
-        props:['updateMealTable', 'updateOrderTable'],
+        props:['updateMealTable', 'updateOrderTable', 'messageGlobal'],
         data: () => ({
             drawer: null,
             authenticated: false,
@@ -164,8 +164,16 @@
             },
             updateOrderTable: function (newVal) {
 		            return newVal;
-            }
+            },
+            messageGlobal: function (newVal) {
+                return this.msgGlobalTextArea = newVal;
+            },
 		    },
+        sockets:{
+            shift_update(dataFromServer){
+                this.user = this.$store.state.user;
+            }
+        },
         mounted() {
             this.user = this.$store.state.user;
             this.$emit("removeNav");

@@ -6,6 +6,8 @@ use App\Meals;
 use Illuminate\Http\Request;
 use App\Restaurant_tables;
 use App\Http\Resources\TablesResource as TablesResource;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Response;
 
 class TablesController extends Controller
 {
@@ -58,6 +60,7 @@ class TablesController extends Controller
         $data = $request->validate([
             'table_number' => 'required'
         ]);
+
 
          $table = new Restaurant_tables();
          $table->fill($request->all());

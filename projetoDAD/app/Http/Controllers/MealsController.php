@@ -27,6 +27,30 @@ class MealsController extends Controller
         $meals = Meals::where('state','active')->orwhere('state','terminated')->paginate(5);
         return MealsWithOrdersResource::collection($meals);
     }
+
+    public function getMealsAByState($state)
+    {
+        if ($state === 'active'){
+            $meals = Meals::where('state', 'active')->paginate(10);
+            return MealsWithOrdersResource::collection(  $meals);
+        }elseif ($state === 'terminated'){
+            $meals = Meals::where('state', 'terminated')->paginate(10);
+            return MealsWithOrdersResource::collection(  $meals);
+        }elseif ($state === 'not paid'){
+            $meals = Meals::where('state', 'not paid')->paginate(10);
+            return MealsWithOrdersResource::collection(  $meals);
+        }else{
+            $meals = Meals::where('state', 'paid')->paginate(10);
+            return MealsWithOrdersResource::collection(  $meals);
+        }
+    }
+    public function getMealsAByDate($date)
+    {
+        $meals = Meals::whereDate('created_at', $date)->paginate(10);
+        return MealsWithOrdersResource::collection($meals);
+    }
+
+
     /**
      * Show the form for creating a new resource.
      *

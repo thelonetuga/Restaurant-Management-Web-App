@@ -32,6 +32,12 @@ class UserController extends Controller
         return UserResource::collection($usersUnblock);
     }
 
+    public function getUserByEmail($email)
+    {
+        $user = User::where('email', $email)->paginate(5);
+        return UserResource::collection($user);
+    }
+
     public function unblockUser($id)
     {
         $user = User::findOrFail($id);
@@ -81,6 +87,7 @@ class UserController extends Controller
 
         $user = new User();
         $user->password = str_random(10);
+        $user->blocked = 1;
         $user->fill($request->all());
         $user->save();
         return response()->json(new UserResource($user), 201);

@@ -18,60 +18,74 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 
-//Gets para a API
-//MEALS
-Route::get('meals', 'MealsController@index');
-Route::get('meals/state/active_terminated', 'MealsController@getMealsActiveAndTerminated');
-
-//USERS
-Route::get('users', 'UserController@index');
-Route::get('users/blocked', 'UserController@getBlockUsers');
-Route::get('users/unblocked', 'UserController@getUnblockUsers');
-
-//INVOICES
-Route::get('invoices', 'InvoicesController@index');
-Route::get('invoices/pending', 'InvoicesController@getPendingInvoces');
-Route::post('invoices/create', 'InvoicesController@store');
-Route::patch('invoice/{id}/meal/{meal_id}/change/state/pending', 'InvoicesController@changeStateToNotPaid');
-Route::patch('/meal/{id}/change/state/terminated', 'MealsController@changeStateToNotPaid');
-
-//ORDERS
-Route::get('orders', 'OrdersController@index');
-
 //ITEMS
 Route::get('items', 'ItemsController@index');
-
-//TABLES
-Route::get('tables', 'TablesController@index');
-//Route::get('passreset', 'PasswordResetController@index');
-Route::get('invitems', 'InvoiceItemsController@index');
 Route::post('login', 'LoginControllerAPI@login')->name('login');
 Route::middleware('auth:api')->group(function () {
     Route::post('logout', 'LoginControllerAPI@logout');
-    //Rotas para tables
-    Route::patch('tables/{id}', 'TablesController@update');
-    Route::post('tables/create', 'TablesController@store');
-    Route::delete('tables/delete/{table_number}', 'TablesController@delete');
+    Route::get('invitems', 'InvoiceItemsController@index');
 
-    //Rotas para ItemsResource
-    Route::post('items/create', 'ItemsController@store');
-    Route::patch('items/{id}', 'ItemsController@update');
-    Route::delete('items/delete/{id}', 'ItemsController@delete');
-    Route::post('items/upload', 'ImageController@uploadItemPhoto');
+    //Rotas para tables
+    Route::middleware('isManager')->get('tables', 'TablesController@index');
+    Route::middleware('isWaiter')->get('/freetables', 'TablesController@getFreeTables');
+    Route::middleware('isManager')->patch('tables/{id}', 'TablesController@update');
+    Route::middleware('isManager')->post('tables/create', 'TablesController@store');
+    Route::middleware('isManager')->delete('tables/delete/{table_number}', 'TablesController@delete');
+
+    //Rotas para Items
+    Route::middleware('isManager')->post('items/create', 'ItemsController@store');
+    Route::middleware('isManager')->patch('items/{id}', 'ItemsController@update');
+    Route::middleware('isManager')->delete('items/delete/{id}', 'ItemsController@delete');
+    Route::middleware('isManager')->post('items/upload', 'ImageController@uploadItemPhoto');
 
     //Rotas para users
-    Route::post('users/create', 'UserController@store');
+    Route::middleware('isManager')->get('users', 'UserController@index');
+    Route::middleware('isManager')->get('users/blocked', 'UserController@getBlockUsers');
+    Route::middleware('isManager')->get('users/unblocked', 'UserController@getUnblockUsers');
+    Route::middleware('isManager')->post('users/create', 'UserController@store');
     Route::put('users/{id}', 'UserController@update');
     Route::post('users/upload', 'ImageController@uploadUserPhoto');
-    Route::delete('users/delete/{id}', 'UserController@delete');
-    Route::patch('user/unblock/{id}', 'UserController@unblockUser');
-    Route::patch('user/block/{id}', 'UserController@blockUser');
-    //Rotas para orders
+    Route::middleware('isManager')->delete('users/delete/{id}', 'UserController@delete');
+    Route::middleware('isManager')->patch('user/unblock/{id}', 'UserController@unblockUser');
+    Route::middleware('isManager')->patch('user/block/{id}', 'UserController@blockUser');
 
+    //Rotas para orders
+    Route::middleware('isCook')->get('orders', 'OrdersController@index');
+    Route::middleware('isCook')->get('cook/orders/pending', 'OrdersController@noCookOrders');
+    Route::middleware('isCook')->get('cook/orders/{responsible_cook_id}', 'OrdersController@cookOrders');
+    Route::middleware('isWaiterOrCook')->get('orders/meal/{id}', 'OrdersController@ordersByMeal');
+    Route::middleware('isWaiterOrCook')->put('orders/{id}', 'OrdersController@update');
+    Route::patch('order/change/state/confirmed/{id}', 'OrdersController@changeStateAfter5Sec');
+    Route::middleware('isWaiterOrCook')->post('/orders/multiple', 'OrdersController@storeMultiple');
+    Route::middleware('isWaiterOrCook')->delete('orders/delete/{id}', 'OrdersController@delete');
+
+    Route::middleware('isWaiter')->get('/waiter/{responsible_waiter_id}/orders/pendingconfirmed', 'OrdersController@waiterPendingConfirmedOrders');
+    Route::middleware('isWaiter')->get('/waiter/{responsible_waiter_id}/orders/prepared', 'OrdersController@waiterPreparedOrders');
+
+    Route::middleware('isWaiter')->get('meals', 'MealsController@index');
+    Route::middleware('isManager')->get('meals/state/active_terminated', 'MealsController@getMealsActiveAndTerminated');
+    Route::middleware('isManager')->get('meals/state/{state}', 'MealsController@getMealsAByState');
+    Route::middleware('isManager')->get('meals/filter/date/{date}', 'MealsController@getMealsAByDate');
+    Route::middleware('isWaiter')->get('waiter/{id}/meals/', 'MealsController@myMeals');
+    Route::middleware('isWaiter')->post('meals/create', 'MealsController@store');
+    Route::middleware('isWaiter')->put('meals/{id}', 'MealsController@update');
+    Route::middleware('isWaiterOrManager')->patch('/meal/{id}/change/state/terminated', 'MealsController@changeStateToNotPaid');
+
+
+    Route::middleware('isCashierOrManager')->get('/invoices/pending', 'InvoicesController@pendingInvoices');
+    Route::middleware('isCashierOrManager')->get('/invoices/all', 'InvoicesController@allInvoices');
+    Route::middleware('isCashierOrManager')->get('invoices', 'InvoicesController@index');
+    Route::middleware('isCashierOrManager')->get('invoices/pending', 'InvoicesController@getPendingInvoces');
+    Route::middleware('isCashierOrManager')->get('invoice/filter/date/{date}', 'InvoicesController@getInvoicesAByDate');
+    Route::middleware('isCashierOrManager')->get('/invoices/state/{state}', 'InvoicesController@getInvoicesByState');
+    Route::middleware('isCashierOrManager')->post('invoices/create', 'InvoicesController@store');
+    Route::middleware('isCashierOrManager')->patch('invoice/{id}/meal/{meal_id}/change/state/pending', 'InvoicesController@changeStateToNotPaid');
+    Route::middleware('isCashierOrManager')->patch('/invoices/pending/{id}', 'InvoicesController@update');
 });
 
 Route::middleware('auth:api')->post('logout', 'LoginControllerAPI@logout');
 Route::middleware('auth:api')->get('users/me', 'UserController@getUser');
+Route::get('users/{email}', 'UserController@getUserByEmail');
 
 
 Route::group([
@@ -84,25 +98,5 @@ Route::group([
     Route::post('reset', 'PasswordResetController@reset');
 });
 
-Route::put('orders/{id}', 'OrdersController@update');
 
-Route::get('cook/orders/pending', 'OrdersController@noCookOrders');
-Route::get('cook/orders/{responsible_cook_id}', 'OrdersController@cookOrders');
-Route::patch('order/change/state/confirmed/{id}','OrdersController@changeStateAfter5Sec');
-
-Route::get('/waiter/{responsible_waiter_id}/orders/pendingconfirmed', 'OrdersController@waiterPendingConfirmedOrders');
-Route::get('/waiter/{responsible_waiter_id}/orders/prepared', 'OrdersController@waiterPreparedOrders');
-Route::get('/freetables', 'TablesController@getFreeTables');
-
-Route::post('meals/create', 'MealsController@store');
-Route::put('meals/{id}', 'MealsController@update');
-Route::get('waiter/{id}/meals/', 'MealsController@myMeals');
-
-Route::post('/orders/multiple', 'OrdersController@storeMultiple');
-Route::delete('orders/delete/{id}', 'OrdersController@delete');
-
-Route::get('orders/meal/{id}', 'OrdersController@ordersByMeal');
-Route::get('/invoices/pending', 'InvoicesController@pendingInvoices');
-Route::get('/invoices/all', 'InvoicesController@allInvoices');
-Route::patch('/invoices/pending/{id}', 'InvoicesController@update');
 

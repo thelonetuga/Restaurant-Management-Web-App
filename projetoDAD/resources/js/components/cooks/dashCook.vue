@@ -114,7 +114,7 @@
     import switchShift from "../reuse/shift";
 
     export default {
-        props: ['updateOrderTable'],
+        props: ['updateOrderTable','messageGlobal'],
         data: () => ({
             drawer: null,
             authenticated: false,
@@ -157,6 +157,14 @@
         watch:{
             updateOrderTable: function (newVal) {
                 return newVal;
+            },
+            messageGlobal: function (newVal) {
+                return this.msgGlobalTextArea = newVal;
+            },
+        },
+        sockets:{
+            shift_update(dataFromServer){
+                this.user = this.$store.state.user;
             }
         },
         components: {

@@ -112,7 +112,7 @@ import ListInvoices from "./ListInvoices";
 import switchShift from "../reuse/shift";
 
 export default {
-  props:['updateInvoiceTable'],
+  props:['updateInvoiceTable', 'messageGlobal'],
   data: () => ({
     drawer: null,
     authenticated: false,
@@ -154,6 +154,14 @@ export default {
   watch:{
     updateInvoiceTable: function (newVal) {
       return newVal;
+    },
+    messageGlobal: function (newVal) {
+      return this.msgGlobalTextArea = newVal;
+    },
+  },
+  sockets:{
+    shift_update(dataFromServer){
+      this.user = this.$store.state.user;
     }
   },
   components: {
