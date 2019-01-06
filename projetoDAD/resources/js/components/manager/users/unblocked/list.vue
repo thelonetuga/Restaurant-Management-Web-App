@@ -75,6 +75,7 @@
                     .catch(function (error) {
                         // handle error
                         console.log(error);
+                        this.$toasted.error('Something went wrong');
                     })
                     .then(function () {
                         // always executed
@@ -91,6 +92,7 @@
                     .catch(function (error) {
                         // handle error
                         console.log(error);
+                        this.$toasted.error('Something went wrong');
                     })
                     .then(function () {
                         // always executed
@@ -102,10 +104,12 @@
                         this.$socket.emit('user_blocked', response.data.data);
                         this.fetchUnblockedUsers();
                         this.$emit("user-blocked", response.data.data);
+                        this.$toasted.show('User Blocked');
                     })
                     .catch(function (error) {
                         // handle error
                         console.log(error);
+                        this.$toasted.show('Something went wrong');
                     })
                     .then(function () {
                         // always executed

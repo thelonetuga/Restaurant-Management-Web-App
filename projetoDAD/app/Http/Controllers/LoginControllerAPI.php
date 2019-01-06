@@ -1,11 +1,13 @@
 <?php
 namespace App\Http\Controllers;
-define('YOUR_SERVER_URL', "http://projeto.ei");
+
+define('YOUR_SERVER_URL', "http://oldbutgold.me");
 // Check "oauth_clients" table for next 2 values:
 define('CLIENT_ID', '2');
 define('CLIENT_SECRET', 'KnRLUyBEIbMiN18y6hwZkQYEEw1L4cGf7DsoBLJf');
 use Auth;
 use Illuminate\Http\Request;
+
 class LoginControllerAPI extends Controller
 {
     public function login(Request $request)

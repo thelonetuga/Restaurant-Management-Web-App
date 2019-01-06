@@ -130,6 +130,7 @@ export default {
           this.$socket.emit('table_deleted', response.data.data);
           this.showSuccess = true;
           this.successMessage = "Table Deleted";
+          this.$toasted.show('Table Deleted');
           this.initialize();
         })
         .catch(function(error) {

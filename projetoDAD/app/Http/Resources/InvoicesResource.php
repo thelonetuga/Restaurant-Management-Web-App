@@ -27,14 +27,3 @@ class InvoicesResource extends JsonResource
         ];
     }
 }
-
-/*
-return [
-    'invoice_id' => $this->state,
-    //'item_id' => $this->items->name,
-    'table_number' => $this->meals->table_number,
-    'item_name' => $this->items()->value('name'),
-
-   //'item' => \App\Items::where('id', $this->item_id)->get()
-];
- */

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\User;
 use App\Http\Resources\UserResource as UserResource;
+use Illuminate\Support\Facades\Hash;
 
 
 class UserController extends Controller
@@ -19,6 +20,14 @@ class UserController extends Controller
         $users = User::withTrashed()->get();
         return UserResource::collection($users);
     }
+
+    public function getAllCooks()
+    {
+        $users = User::withTrashed()->where('type', 'cook')->get();
+        return UserResource::collection($users);
+    }
+
+
 
     public function getBlockUsers()
     {
@@ -113,6 +122,21 @@ class UserController extends Controller
     public function edit($id)
     {
         //
+    }
+
+    public function editPassword(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        $new_password = bcrypt($request['new_password']);
+
+        if (Hash::check($request['old_password'], $user->password)) {
+            $user->password = $new_password;
+            $user->update();
+            return new UserResource($user, 200);
+        }
+        return response()->json(null, 403);
+
     }
 
     /**

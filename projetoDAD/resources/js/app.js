@@ -17,6 +17,9 @@ import store from './vuex.js';
 import VueSocketio from 'vue-socket.io';
 import Toasted from 'vue-toasted';
 import jsPDF from 'jspdf';
+import VCharts from 'v-charts'
+
+Vue.use(VCharts)
 // install plugin with options
 Vue.use(Vuetify);
 Vue.use(VueRouter);
@@ -29,9 +32,10 @@ Vue.use(new VueSocketio({
 }));
 
 Vue.use(Toasted, {
-    position: 'bottom-center',
-    duration: 2000,
-    type: 'info',
+    theme: "bubble",
+    position: "bottom-center",
+    duration : 5000,
+    type: 'info'
 });
 window.Event = new Vue;
 

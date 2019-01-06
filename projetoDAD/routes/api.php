@@ -25,6 +25,13 @@ Route::middleware('auth:api')->group(function () {
     Route::post('logout', 'LoginControllerAPI@logout');
     Route::get('invitems', 'InvoiceItemsController@index');
 
+
+    //Statistics US39
+    Route::middleware('isManager')->get('cook/orders/average/day', 'OrdersController@averageByCook');
+    Route::middleware('isManager')->get('waiter/meals/average/day', 'OrdersController@statisticsMeals');
+    Route::middleware('isManager')->get('waiter/orders/average/day', 'OrdersController@averageByWaiter');
+
+
     //Rotas para tables
     Route::middleware('isManager')->get('tables', 'TablesController@index');
     Route::middleware('isWaiter')->get('/freetables', 'TablesController@getFreeTables');
@@ -45,6 +52,7 @@ Route::middleware('auth:api')->group(function () {
     Route::middleware('isManager')->post('users/create', 'UserController@store');
     Route::put('users/{id}', 'UserController@update');
     Route::post('users/upload', 'ImageController@uploadUserPhoto');
+    Route::patch('user/{id}/edit/password', 'UserController@editPassword');
     Route::middleware('isManager')->delete('users/delete/{id}', 'UserController@delete');
     Route::middleware('isManager')->patch('user/unblock/{id}', 'UserController@unblockUser');
     Route::middleware('isManager')->patch('user/block/{id}', 'UserController@blockUser');
@@ -72,15 +80,15 @@ Route::middleware('auth:api')->group(function () {
     Route::middleware('isWaiterOrManager')->patch('/meal/{id}/change/state/terminated', 'MealsController@changeStateToNotPaid');
 
 
-    Route::middleware('isCashierOrManager')->get('/invoices/pending', 'InvoicesController@pendingInvoices');
-    Route::middleware('isCashierOrManager')->get('/invoices/all', 'InvoicesController@allInvoices');
-    Route::middleware('isCashierOrManager')->get('invoices', 'InvoicesController@index');
-    Route::middleware('isCashierOrManager')->get('invoices/pending', 'InvoicesController@getPendingInvoces');
-    Route::middleware('isCashierOrManager')->get('invoice/filter/date/{date}', 'InvoicesController@getInvoicesAByDate');
-    Route::middleware('isCashierOrManager')->get('/invoices/state/{state}', 'InvoicesController@getInvoicesByState');
-    Route::middleware('isCashierOrManager')->post('invoices/create', 'InvoicesController@store');
-    Route::middleware('isCashierOrManager')->patch('invoice/{id}/meal/{meal_id}/change/state/pending', 'InvoicesController@changeStateToNotPaid');
-    Route::middleware('isCashierOrManager')->patch('/invoices/pending/{id}', 'InvoicesController@update');
+    Route::get('invoices/pending', 'InvoicesController@pendingInvoices');
+    Route::get('invoices/all', 'InvoicesController@allInvoices');
+    Route::get('invoices', 'InvoicesController@index');
+    Route::get('invoices/pending', 'InvoicesController@getPendingInvoces');
+    Route::get('invoice/filter/date/{date}', 'InvoicesController@getInvoicesAByDate');
+    Route::get('invoices/state/{state}', 'InvoicesController@getInvoicesByState');
+    Route::post('invoices/create', 'InvoicesController@store');
+    Route::patch('invoice/{id}/meal/{meal_id}/change/state/pending', 'InvoicesController@changeStateToNotPaid');
+    Route::patch('invoices/pending/{id}', 'InvoicesController@update');
 });
 
 Route::middleware('auth:api')->post('logout', 'LoginControllerAPI@logout');

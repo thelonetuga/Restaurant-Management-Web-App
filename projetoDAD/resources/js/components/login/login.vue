@@ -4,8 +4,12 @@
       <v-container fluid fill-height>
         <v-layout align-center justify-center>
           <v-flex xs12 sm8 md4>
-            <div v-if="loginTrigger">
-              <v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
+            <div v-if="loginTrigger" class="text-xs-center">
+              <v-progress-circular
+                      :size="50"
+                      color="primary"
+                      indeterminate
+              ></v-progress-circular>
             </div>
             <v-card v-else class="elevation-12" light>
               <v-toolbar dark color="primary">
@@ -69,7 +73,7 @@ export default {
                 }
               })
               .catch(function (error) {
-                console.log(error);
+                vm.toasted.error('This user does not exist');
               })
               .then(function () {
                 // always executed
@@ -97,6 +101,7 @@ export default {
           this.$store.commit("clearUserAndToken");
           this.typeofmsg = "error";
           this.message = "Invalid credentials";
+          this.$toasted.error('Invalid credentials');
           this.showMessage = true;
           console.log(error);
         });

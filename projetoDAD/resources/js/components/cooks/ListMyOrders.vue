@@ -1,67 +1,71 @@
 <template>
-	<v-app>
-		<div class="text-xs-center">
-			<v-pagination
-							v-model="pagination.current_page"
-							:length="pagination.last_page"
-							:input="pagination.current_page"
-							@next="fetchOrders(pagination.next_page_url)"
-							@previous="fetchOrders(pagination.prev_page_url)"
-							circle>
-			</v-pagination>
+		<div v-if="loading" class="text-xs-center">
+			<v-progress-circular
+							:size="50"
+							color="primary"
+							indeterminate
+			></v-progress-circular>
 		</div>
-		<v-toolbar flat>
-			<v-toolbar-title>My Orders</v-toolbar-title>
-		</v-toolbar>
-		<v-data-table
-						:headers="headers"
-						:items="orders"
-						hide-actions
-						class="elevation-1">
-			<template slot="items" slot-scope="props">
-				<tr @click="props.expanded = !props.expanded">
-					<td v-bind:style="[props.item.state === 'confirmed' ? {'backgroundColor': theme.primary}: {}]">
-						{{props.item.id }}
-					</td>
-					<td class="text-xs-left"
-					    v-bind:style="[props.item.state === 'confirmed' ? {'backgroundColor': theme.primary}: {}]">
-						{{props.item.state }}
-					</td>
-					<td class="text-xs-left"
-					    v-bind:style="[props.item.state === 'confirmed' ? {'backgroundColor': theme.primary}: {}]">
-						{{props.item.item === null ? '':props.item.item.name }}
-					</td>
-					<td class="text-xs-left"
-					    v-bind:style="[props.item.state === 'confirmed' ? {'backgroundColor': theme.primary}: {}]">
-						{{props.item.created_at }}
-					</td>
-					<td class="text-xs-left"
-					    v-bind:style="[props.item.state === 'confirmed' ? {'backgroundColor': theme.primary}: {}]">
-						{{props.item.updated_at }}
-					</td>
-				</tr>
-			</template>
-			<template slot="expand" slot-scope="props">
-				<v-btn v-if="props.item.state === 'in preparation'" v-on:click.prevent="setPrepared(props.item, 'prepared')"
-				       style="margin-left: 15%"
-				       color="success">Set
-					Prepared
-				</v-btn>
-				<v-btn v-if="props.item.state === 'confirmed'" v-on:click.prevent="setPrepared(props.item, 'in preparation')"
-				       style="margin-left: 15%"
-				       color="info">Set
-					In Preparation
-				</v-btn>
-			</template>
-		</v-data-table>
-	</v-app>
+		<div v-else>
+			<div class="text-xs-center">
+				<v-pagination v-model="currentPage" :length="lastPage" @input="makePagination" circle></v-pagination>
+			</div>
+			<v-toolbar flat>
+				<v-toolbar-title>My Orders</v-toolbar-title>
+			</v-toolbar>
+			<v-data-table
+							:headers="headers"
+							:items="orders"
+							hide-actions
+							class="elevation-1">
+				<template slot="items" slot-scope="props">
+					<tr @click="props.expanded = !props.expanded">
+						<td v-bind:style="[props.item.state === 'confirmed' ? {'backgroundColor': theme.primary}: {}]">
+							{{props.item.id }}
+						</td>
+						<td class="text-xs-left"
+						    v-bind:style="[props.item.state === 'confirmed' ? {'backgroundColor': theme.primary}: {}]">
+							{{props.item.state }}
+						</td>
+						<td class="text-xs-left"
+						    v-bind:style="[props.item.state === 'confirmed' ? {'backgroundColor': theme.primary}: {}]">
+							{{props.item.item === null ? '':props.item.item.name }}
+						</td>
+						<td class="text-xs-left"
+						    v-bind:style="[props.item.state === 'confirmed' ? {'backgroundColor': theme.primary}: {}]">
+							{{props.item.created_at }}
+						</td>
+						<td class="text-xs-left"
+						    v-bind:style="[props.item.state === 'confirmed' ? {'backgroundColor': theme.primary}: {}]">
+							{{props.item.updated_at }}
+						</td>
+						<td class="text-xs-left"
+						    v-bind:style="[props.item.state === 'confirmed' ? {'backgroundColor': theme.primary}: {}]">
+							<v-icon>visibility</v-icon>
+						</td>
+					</tr>
+				</template>
+				<template slot="expand" slot-scope="props">
+					<v-btn v-if="props.item.state === 'in preparation'" v-on:click.prevent="setPrepared(props.item, 'prepared')"
+					       style="margin-left: 15%"
+					       color="success">Set
+						Prepared
+					</v-btn>
+					<v-btn v-if="props.item.state === 'confirmed'" v-on:click.prevent="setPrepared(props.item, 'in preparation')"
+					       style="margin-left: 15%"
+					       color="info">Set
+						In Preparation
+					</v-btn>
+				</template>
+			</v-data-table>
+		</div>
 </template>
 
 
 <script>
 
     export default {
-        props:['updateOrderTable'],
+        props: ['updateOrderTable'],
         data() {
             return {
                 headers: [
@@ -86,9 +90,17 @@
                     {
                         text: "Updated At", align: "left",
                         sortable: false, value: "updated_at"
+                    },
+                    {
+                        text: "Action", align: "left",
+                        sortable: false, value: "updated_at"
                     }
                 ],
                 orders: [],
+                currentPage: 1,
+                lastPage: 0,
+                url: '',
+                loading: true,
                 order: {
                     id: "",
                     state: "",
@@ -110,16 +122,19 @@
             this.fetchOrders();
         },
         methods: {
-            fetchOrders(page_url) {
+            fetchOrders() {
                 let vm = this;
-                console.log(this.$store.state.user.id);
-                page_url = page_url || "/api/cook/orders/" + this.$store.state.user.id;
+                this.url = "/api/cook/orders/" + this.$store.state.user.id;
                 axios
-                    .get(page_url)
+                    .get("/api/cook/orders/" + this.$store.state.user.id)
                     .then(function (response) {
                         // handle success
                         vm.orders = response.data.data;
-                        vm.makePagination(response.data.meta, response.data.links);
+                        vm.loading = false;
+                        vm.totalMeals = response.data.data.total;
+                        vm.currentPage = response.data.meta.current_page;
+                        vm.lastPage = response.data.meta.last_page;
+                        vm.pagination = response.data.meta.links;
                     })
                     .catch(function (error) {
                         // handle error
@@ -129,14 +144,24 @@
                         // always executed
                     });
             },
-            makePagination(meta, links) {
-                let pagination = {
-                    current_page: meta.current_page,
-                    last_page: meta.last_page,
-                    next_page_url: links.next,
-                    prev_page_url: links.prev
-                };
-                this.pagination = pagination;
+            makePagination(page) {
+                this.loading = true;
+                let vm = this;
+                axios.get(this.url + "?page=" + page)
+                    .then(response => {
+                        vm.loading = false;
+                        vm.orders = response.data.data;
+                        vm.currentPage = response.data.meta.current_page;
+                        vm.lastPage = response.data.meta.last_page;
+                        vm.pagination = response.data.meta.links;
+                    })
+                    .catch(function (error) {
+                        // handle error
+                        console.log(error);
+                    })
+                    .then(function () {
+                        // always executed
+                    });
             }, setPrepared(item, state) {
                 item.state = state;
                 axios
@@ -144,7 +169,7 @@
                     .then(response => {
                         Object.assign(item, response.data.data);
                         this.$emit("item-saved", item);
-                        let data ={
+                        let data = {
                             type: item.state === 'prepared' ? 3 : 2,
                             order: response.data.data
                         };
@@ -159,12 +184,12 @@
                     });
             }
         },
-		    watch:{
+        watch: {
             updateOrderTable: function () {
                 this.$toasted.success('Table Orders updated');
                 this.fetchOrders();
             }
-		    },
+        },
     };
 </script>
 <

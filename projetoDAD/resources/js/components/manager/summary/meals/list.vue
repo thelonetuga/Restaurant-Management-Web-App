@@ -35,6 +35,12 @@
 					<td class="text-left" v-if="props.item.state === 'terminated'">
 						<v-btn flat small color="warning" @click="changeState(props.item)">Not Paid</v-btn>
 					</td>
+					<td class="text-left" v-else>
+						<v-btn flat small color="info">Meal Not terminated</v-btn>
+					</td>
+					<td class="text-xs-left">
+						<v-icon>visibility</v-icon>
+					</td>
 				</tr>
 			</template>
 			<template slot="expand" slot-scope="props" light>
@@ -97,7 +103,8 @@
                     {text: 'State Meal', value: 'state'},
                     {text: 'Table Number', value: 'table'},
                     {text: 'Responsible Waiter', value: 'state'},
-                    {text: "Change State", value: "name", sortable: false }
+                    {text: "Change State", value: "name", sortable: false },
+                    {text: "See Orders", value: "see", sortable: false }
                 ],
                 headersOrders: [
                     {

@@ -1,14 +1,14 @@
 <template>
-	<v-app>
+	<div v-if="loading" class="text-xs-center">
+		<v-progress-circular
+						:size="50"
+						color="primary"
+						indeterminate
+		></v-progress-circular>
+	</div>
+	<div v-else>
 		<div class="text-xs-center">
-			<v-pagination
-							v-model="pagination.current_page"
-							:length="pagination.last_page"
-							:input="pagination.current_page"
-							@next="fetchOrders(pagination.next_page_url)"
-							@previous="fetchOrders(pagination.prev_page_url)"
-							circle>
-			</v-pagination>
+			<v-pagination v-model="currentPage" :length="lastPage" @input="makePagination" circle></v-pagination>
 		</div>
 		<v-toolbar flat>
 			<v-toolbar-title>Confirmed Orders</v-toolbar-title>
@@ -38,6 +38,9 @@
 					<td class="text-xs-left">
 						{{props.item.responsible_cook_id }}
 					</td>
+					<td class="text-xs-left">
+						<v-icon>visibility</v-icon>
+					</td>
 				</tr>
 			</template>
 			<template slot="expand" slot-scope="props">
@@ -47,7 +50,7 @@
 				</v-btn>
 			</template>
 		</v-data-table>
-	</v-app>
+	</div>
 </template>
 
 
@@ -83,9 +86,17 @@
                     {
                         text: "Cook id", align: "left",
                         sortable: false, value: "updated_at"
+                    },
+                    {
+                        text: "Assign to Me", align: "left",
+                        sortable: false, value: "assign"
                     }
                 ],
                 orders: [],
+                currentPage: 1,
+                lastPage: 0,
+                url: '',
+                loading: true,
                 order: {
                     id: "",
                     state: "",
@@ -110,13 +121,18 @@
         methods: {
             fetchOrders(page_url) {
                 let vm = this;
-                page_url = page_url || "/api/cook/orders/pending";
+                this.loading = true;
+                this.url = "/api/cook/orders/pending";
                 axios
-                    .get(page_url)
+                    .get("/api/cook/orders/pending")
                     .then(function (response) {
                         // handle success
+                        vm.loading = false;
                         vm.orders = response.data.data;
-                        vm.makePagination(response.data.meta, response.data.links);
+                        vm.totalMeals = response.data.data.total;
+                        vm.currentPage = response.data.meta.current_page;
+                        vm.lastPage = response.data.meta.last_page;
+                        vm.pagination = response.data.meta.links;
                     })
                     .catch(function (error) {
                         // handle error
@@ -126,14 +142,23 @@
                         // always executed
                     });
             },
-            makePagination(meta, links) {
-                let pagination = {
-                    current_page: meta.current_page,
-                    last_page: meta.last_page,
-                    next_page_url: links.next,
-                    prev_page_url: links.prev
-                };
-                this.pagination = pagination;
+            makePagination(page) {
+                this.loading = true;
+                axios.get(this.url + "?page=" + page)
+                    .then(response => {
+                        this.loading = false;
+                        this.orders = response.data.data;
+                        this.currentPage = response.data.meta.current_page;
+                        this.lastPage = response.data.meta.last_page;
+                        this.pagination = response.data.meta.links;
+                    })
+                    .catch(function (error) {
+                        // handle error
+                        console.log(error);
+                    })
+                    .then(function () {
+                        // always executed
+                    });
             }, setToME(item) {
                 item.responsible_cook_id = this.$store.state.user.id;
                 axios

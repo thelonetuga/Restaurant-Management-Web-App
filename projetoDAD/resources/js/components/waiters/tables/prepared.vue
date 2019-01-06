@@ -28,6 +28,9 @@
                         v-bind:style="[props.item.state === 'confirmed' ? {'backgroundColor': theme.primary}: {}]">
                         {{props.item.updated_at }}
                     </td>
+                    <td class="text-xs-left" v-bind:style="[props.item.state === 'confirmed' ? {'backgroundColor': theme.primary}: {}]">
+                        <v-icon>visibility</v-icon>
+                    </td>
                 </tr>
             </template>
             <template slot="expand" slot-scope="props">
@@ -66,6 +69,10 @@
                     {
                         text: "Updated At", align: "left",
                         sortable: false, value: "updated_at"
+                    },
+                    {
+                        text: "Set Delivered", align: "left",
+                        sortable: false, value: "deliv"
                     }
                 ],
                 orders: [],

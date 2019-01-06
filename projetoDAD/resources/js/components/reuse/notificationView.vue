@@ -5,7 +5,7 @@
 					class="scroll-y"
 	>
 		<v-layout
-						v-scroll:#scroll-target="onScroll"
+						scrollable
 						column
 						align-top
 						style="height: 300px"

@@ -114,14 +114,12 @@ io.on("connection", function(socket) {
           "msg_from_server_report",
           userInfo.name + "(" + userInfo.type + ")" + ': "' + msg + '"'
         );
-      socket.broadcast
-        .to(channelName)
-        .emit("notification_from_server_manager", {
-          avatar: userInfo.photo_url,
-          title: userInfo.name,
-          subtitle: msg,
-          actionRoute: "/privatedashboard/manager"
-        });
+      socket.broadcast.to("manager").emit("notification_from_server_manager", {
+        avatar: userInfo.photo_url,
+        title: userInfo.name,
+        subtitle: msg,
+        actionRoute: "/privatedashboard/manager"
+      });
     }
   });
 
@@ -159,7 +157,7 @@ io.on("connection", function(socket) {
         actionRoute: "/privatedashboard/waiter"
       });
     } else if (changedOrder.type === 2) {
-      socket.broadcast.to("cook").emit("order_changed", {
+      io.to("cook").emit("order_changed", {
         icon: "local_grocery_store",
         iconClass: "blue white--text",
         title: "Order",
@@ -186,7 +184,7 @@ io.on("connection", function(socket) {
         actionRoute: "/privatedashboard/waiter"
       });
     } else if (changedOrder.type === 3) {
-      socket.broadcast.to("cook").emit("order_changed", {
+      io.to("cook").emit("order_changed", {
         icon: "local_grocery_store",
         iconClass: "blue white--text",
         title: "Order",
@@ -267,7 +265,7 @@ io.on("connection", function(socket) {
         actionRoute: "/privatedashboard/waiter"
       });
     } else {
-      socket.broadcast.to("cook").emit("order_changed", {
+      io.to("cook").emit("order_changed", {
         icon: "local_grocery_store",
         iconClass: "blue white--text",
         title: "Order",
@@ -315,7 +313,7 @@ io.on("connection", function(socket) {
       actionRoute: "/privatedashboard/manager"
     });
 
-    socket.broadcast.to("waiter").emit("order_created", {
+    io.to("waiter").emit("order_created", {
       icon: "local_grocery_store",
       iconClass: "green white--text",
       title: "Order",
@@ -330,7 +328,7 @@ io.on("connection", function(socket) {
       icon: "local_grocery_store",
       iconClass: "red white--text",
       title: "Order",
-      subtitle: "Order: " + changedOrder.id + " deleted.",
+      subtitle: "Order deleted.",
       changedOrder: changedOrder,
       actionRoute: "/privatedashboard/cook"
     });
@@ -339,7 +337,7 @@ io.on("connection", function(socket) {
       icon: "local_grocery_store",
       iconClass: "red white--text",
       title: "Order",
-      subtitle: "Order: " + changedOrder.id + " deleted.",
+      subtitle: "Order deleted.",
       changedOrder: changedOrder,
       actionRoute: "/privatedashboard/manager"
     });
@@ -348,7 +346,7 @@ io.on("connection", function(socket) {
       icon: "local_grocery_store",
       iconClass: "red white--text",
       title: "Order",
-      subtitle: "Order: " + changedOrder.id + " deleted.",
+      subtitle: "Order deleted.",
       changedOrder: changedOrder,
       actionRoute: "/privatedashboard/waiter"
     });
@@ -359,7 +357,7 @@ io.on("connection", function(socket) {
   //Invoices
   //US23
   socket.on("invoice_changed", function(changedInvoice) {
-    socket.broadcast.to("manager").emit("invoice_changed", {
+    io.to("manager").emit("invoice_changed", {
       icon: "receipt",
       iconClass: "blue white--text",
       title: "Invoice",
@@ -368,7 +366,7 @@ io.on("connection", function(socket) {
       actionRoute: "/privatedashboard/manager"
     });
 
-    socket.broadcast.to("cashier").emit("invoice_changed", {
+    io.to("cashier").emit("invoice_changed", {
       icon: "receipt",
       iconClass: "blue white--text",
       title: "Invoice",
@@ -383,7 +381,7 @@ io.on("connection", function(socket) {
       icon: "receipt",
       iconClass: "green white--text",
       title: "Invoice",
-      subtitle: "Invoice: " + changedInvoice.id + " created.",
+      subtitle: "Invoice created.",
       changedInvoice: changedInvoice,
       actionRoute: "/privatedashboard/manager"
     });
@@ -392,7 +390,7 @@ io.on("connection", function(socket) {
       icon: "receipt",
       iconClass: "green white--text",
       title: "Invoice",
-      subtitle: "Invoice: " + changedInvoice.id + " created.",
+      subtitle: "Invoice created.",
       changedInvoice: changedInvoice,
       actionRoute: "/privatedashboard/cashier"
     });
@@ -403,7 +401,7 @@ io.on("connection", function(socket) {
       icon: "receipt",
       iconClass: "green white--text",
       title: "Invoice",
-      subtitle: "Invoice: " + changedInvoice.id + " deleted.",
+      subtitle: "Invoice deleted.",
       changedInvoice: changedInvoice,
       actionRoute: "/privatedashboard/manager"
     });
@@ -412,7 +410,7 @@ io.on("connection", function(socket) {
       icon: "receipt",
       iconClass: "green white--text",
       title: "Invoice",
-      subtitle: "Invoice: " + changedInvoice.id + " deleted.",
+      subtitle: "Invoice deleted.",
       changedInvoice: changedInvoice,
       actionRoute: "/privatedashboard/cashier"
     });

@@ -15,7 +15,6 @@
 				</td>
 			</template>
 		</v-data-table>
-		<br>
 		<listAllInvoices></listAllInvoices>
 	</div>
 </template>
@@ -26,6 +25,7 @@
         data() {
             return {
                 dialog: false,
+                url:'',
                 headers: [
                     { text: "Table Number", value: "table_number" },
                     { text: "Responsible Waiter", value: "responsible_waiter_id" },
@@ -38,6 +38,7 @@
         methods: {
             fetchPendingInvoices: function() {
                 let vm = this;
+                this.url= "api/invoices/pending";
                 axios
                     .get("api/invoices/pending")
                     .then(response => {
@@ -93,6 +94,20 @@
         },
         created() {
             this.fetchPendingInvoices();
+        },
+        sockets: {
+            invoice_changed() {
+                this.fetchPendingInvoices();
+                console.log('manager INvoices')
+            },
+            invoice_created() {
+                this.fetchPendingInvoices();
+                console.log('manager INvoices')
+            },
+            invoice_deleted() {
+                this.fetchPendingInvoices();
+                console.log('manager INvoices')
+            },
         }
     };
 </script>

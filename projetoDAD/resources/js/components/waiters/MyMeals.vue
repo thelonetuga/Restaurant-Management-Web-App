@@ -30,14 +30,9 @@
                         <v-card>
                             <v-card-title>Select Items</v-card-title>
                             <v-divider></v-divider>
-                            <v-pagination
-                                    v-model="pagination.current_page"
-                                    :length="pagination.last_page"
-                                    :input="pagination.current_page"
-                                    @next="fetchItems(pagination.next_page_url)"
-                                    @previous="fetchItems(pagination.prev_page_url)"
-                                    circle>
-                            </v-pagination>
+                            <div class="text-xs-center">
+                                <v-pagination v-model="currentPage" :length="lastPage" @input="makePagination" circle></v-pagination>
+                            </div>
                             <v-card-text style="height: 300px;">
                                 <v-container fluid>
                                     <div v-for='item in items'>
@@ -170,6 +165,10 @@
                 dialog: false,
                 dialogCreate: false,
                 info_dialog: false,
+                currentPage: 1,
+                lastPage: 0,
+                url: '',
+                loading: true,
                 items: [],
                 meals: [],
                 edited_meal: {
@@ -203,12 +202,17 @@
         methods: {
             fetchMeals(page_url) {
                 let vm = this;
-                page_url = page_url || "/api/waiter/" + this.$store.state.user.id + "/meals";
-                axios
-                    .get(page_url)
+                this.loading = true;
+                this.url = "/api/waiter/" + this.$store.state.user.id + "/meals";
+                axios.get("/api/waiter/" + this.$store.state.user.id + "/meals")
                     .then(function (response) {
+                        this.loading = false;
                         // handle success
                         vm.meals = response.data.data;
+                        vm.totalMeals = response.data.data.total;
+                        vm.currentPage = response.data.meta.current_page;
+                        vm.lastPage = response.data.meta.last_page;
+                        vm.pagination = response.data.meta.links;
                     })
                     .catch(function (error) {
                         // handle error
@@ -218,14 +222,23 @@
                         // always executed
                     });
             },
-            makePagination(meta, links) {
-                let pagination = {
-                    current_page: meta.current_page,
-                    last_page: meta.last_page,
-                    next_page_url: links.next,
-                    prev_page_url: links.prev
-                };
-                this.pagination = pagination;
+            makePagination(page) {
+                this.loading = true;
+                axios.get(this.url + "?page=" + page)
+                        .then(response => {
+                            this.loading = false;
+                            this.meals = response.data.data;
+                            this.currentPage = response.data.meta.current_page;
+                            this.lastPage = response.data.meta.last_page;
+                            this.pagination = response.data.meta.links;
+                        })
+                        .catch(function (error) {
+                            // handle error
+                            console.log(error);
+                        })
+                        .then(function () {
+                            // always executed
+                        });
             }, editItem(item) {
                 this.edited_meal.edit_meal = item;
                 this.fetchItems();
@@ -327,7 +340,7 @@
                         .then(response => {
                           this.$socket.emit('meal_changed', response.data.data);
                             console.log('meal updated');
-                            vm.createInvoice();
+                            this.createInvoice();
                             this.fetchMeals();
                             this.fetchItems();
                             this.infoItem();
@@ -381,6 +394,7 @@
             createInvoice() {
                 axios.post("api/invoices/create", this.invoice)
                     .then(response => {
+                        console.log("CRIACAO INVOICE:",response);
                         this.$socket.emit('invoice_created', response.data.data);
                         console.log('invoice created');
                     })

@@ -14,6 +14,7 @@
 														id="email"
 														v-model="passConfirmation.email"
 														type="email"
+														:rules="emailRules"
 														required></v-text-field>
 									</v-flex>
 								</v-layout>
@@ -25,6 +26,7 @@
 														id="password"
 														v-model="passConfirmation.password"
 														type="password"
+														:rules="[rules.required, rules.min]"
 														required></v-text-field>
 									</v-flex>
 								</v-layout>
@@ -56,6 +58,15 @@
     export default {
         data () {
             return {
+                emailRules: [
+                    (v) => !!v || 'E-mail is required',
+                    (v) => /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v) || 'E-mail must be valid'
+                ],
+                rules: {
+                    required: value => !!value || 'Required.',
+                    min: v => v.length >= 8 || 'Min 8 characters',
+                    emailMatch: () => ('The email and password you entered don\'t match')
+                },
                 passConfirmation:{
                     email: '',
                     password: '',
@@ -86,6 +97,7 @@
                     .then(response => {
                         console.log(response.data);
                         console.log('Reset Success');
+                        vm.$toasted.show('Reset Success');
                         this.$router.push('/logout');
                     })
                     .catch(error => {

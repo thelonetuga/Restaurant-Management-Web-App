@@ -99,6 +99,7 @@
                     <v-flex>
                         <switch-Shift></switch-Shift>
                         <list_orders :updateOrderTable="updateOrderTable"></list_orders>
+                        <br>
                         <list_pending_orders :updateOrderTable="updateOrderTable"></list_pending_orders>
                         <router-view></router-view>
                     </v-flex>

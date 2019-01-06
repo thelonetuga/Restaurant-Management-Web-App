@@ -28,6 +28,9 @@
                     v-bind:style="[props.item.state === 'confirmed' ? {'backgroundColor': theme.primary}: {}]">
                     {{props.item.updated_at }}
                 </td>
+                <td class="text-xs-left" v-bind:style="[props.item.state === 'confirmed' ? {'backgroundColor': theme.primary}: {}]">
+                    <v-icon>visibility</v-icon>
+                </td>
             </tr>
         </template>
         <template slot="expand" slot-scope="props">
@@ -67,6 +70,10 @@
                     {
                         text: "Updated At", align: "left",
                         sortable: false, value: "updated_at"
+                    },
+                    {
+                        text: "To Cancel", align: "left",
+                        sortable: false, value: "cancel"
                     }
                 ],
                 orders: [],
@@ -134,6 +141,14 @@
         },
         sockets: {
             order_changed(){
+                this.fetchPendingOrders();
+                console.log('preparedOrders')
+            },
+            order_created(){
+                this.fetchPendingOrders();
+                console.log('preparedOrders')
+            },
+            order_deleted(){
                 this.fetchPendingOrders();
                 console.log('preparedOrders')
             },

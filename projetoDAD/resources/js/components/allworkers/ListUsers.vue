@@ -195,11 +195,9 @@
                 const index = this.users.indexOf(user);
                 confirm("Are you sure you want to delete this user?") &&
                 this.users.splice(index, 1);
-                console.log(user.id);
                 axios.delete("api/users/delete/" + user.id)
                     .then(response => {
                         this.$socket.emit('user_deleted', response.data.data);
-                        console.log('user deleted');
                         this.showSuccess = true;
                         this.successMessage = "UserResource Deleted";
                         this.initialize();
@@ -305,13 +303,10 @@
                         .then(response => {
                             //Object.assign(this.editedUser, response.data.data);
                             this.$socket.emit('user_created', response.data.data);
-                            console.log(response);
-                            console.log(JSON.stringify({email: response.data.email}));
                             let email = {email: response.data.email};
                             return axios.post('api/password/create', email);
                         })
                         .catch(function (error) {
-                            console.log(error.response.data.message);
                         })
                         .then(function () {
                             // always executed

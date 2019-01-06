@@ -110,19 +110,18 @@ export default {
       if (this.editedIndex > -1) {
         //variavel nao entra no axios
         console.log("Fora do axios", this.editedInvoices);
+        let vm = this;
         axios
           .patch(
-            "api/invoices/pending/" + this.pendingInvoices[this.editedIndex].id,
-            this.editedInvoices
-          )
+            "api/invoices/pending/" + this.pendingInvoices[this.editedIndex].id, this.editedInvoices)
           .then(function(response) {
             // handle succes
-            this.$socket.emit('invoice_changed', response.data.data);
-            console.log("axios", response.data.data);
+            vm.$socket.emit('invoice_changed', response.data.data);
+            console.log("axios", response);
           })
           .catch(function(error) {
             // handle error
-            console.log(error.response.data.message);
+            console.log(error);
           })
           .then(function() {
             // always executed
@@ -151,6 +150,20 @@ export default {
   },
   created() {
     this.fetchPendingInvoices();
+  },
+  sockets: {
+    invoice_changed() {
+      this.fetchPendingInvoices();
+      console.log('cashier INvoices')
+    },
+    invoice_created() {
+      this.fetchPendingInvoices();
+      console.log('cashier INvoices')
+    },
+    invoice_deleted() {
+      this.fetchPendingInvoices();
+      console.log('cashier INvoices')
+    },
   }
 };
 </script>

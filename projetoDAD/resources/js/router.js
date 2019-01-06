@@ -16,6 +16,7 @@ import Confirmation from "./components/password/confirmation.vue";
 import listTables from "./components/manager/listTables.vue";
 import ManagerDashboard from "./components/manager/manager.vue";
 import listManagerInvoices from "./components/manager/summary/invoices/list.vue";
+import Statistics from "./components/manager/statistics/statistics";
 
 //Cashier Routes
 import ListInvoices from "./components/cashier/ListInvoices.vue";
@@ -86,20 +87,25 @@ const router = new VueRouter({
                     name: 'tables',
                     component: listTables
                 },
-                    {
-                        path: 'listusers',
-                        name: 'listusers',
-                        component: UsersList,
-                    },
-                    {
-                        path: 'summary/invoices/list',
-                        name: 'listManagerInvoices',
-                        component: listManagerInvoices,
-                        props: true,
-                        meta: {
-                            middleware: true
-                        }
+                {
+                    path: 'listusers',
+                    name: 'listusers',
+                    component: UsersList,
+                },
+                {
+                    path: 'summary/invoices/list',
+                    name: 'listManagerInvoices',
+                    component: listManagerInvoices,
+                    props: true,
+                    meta: {
+                        middleware: true
                     }
+                },
+                {
+                    path: 'statistics',
+                    name: 'statistics',
+                    component: Statistics,
+                },
                 ],
             },
             {

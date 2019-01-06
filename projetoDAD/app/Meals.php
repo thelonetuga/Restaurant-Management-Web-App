@@ -16,7 +16,7 @@ class Meals extends Model
     ];
 
     public function orders(){
-        return $this->hasMany(Orders::class, 'meal_id', 'id');
+        return $this->hasMany(Orders::class, 'meal_id', 'id')->orderBy('start');
     }
 
     public function order(){

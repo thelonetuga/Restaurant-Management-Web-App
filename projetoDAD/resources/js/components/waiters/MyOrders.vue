@@ -12,8 +12,6 @@
     <prepared v-if="isPrepared"></prepared>
   </div>
 </template>
-
-
 <script>
     import Pending from "./tables/pending";
     import Prepared from "./tables/prepared";
