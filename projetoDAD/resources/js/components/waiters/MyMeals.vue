@@ -202,11 +202,11 @@
         methods: {
             fetchMeals(page_url) {
                 let vm = this;
-                this.loading = true;
+                //this.loading = true;
                 this.url = "/api/waiter/" + this.$store.state.user.id + "/meals";
                 axios.get("/api/waiter/" + this.$store.state.user.id + "/meals")
                     .then(function (response) {
-                        this.loading = false;
+                       // vm.loading = false;
                         // handle success
                         vm.meals = response.data.data;
                         vm.totalMeals = response.data.data.total;
@@ -227,7 +227,7 @@
                 axios.get(this.url + "?page=" + page)
                         .then(response => {
                             this.loading = false;
-                            this.meals = response.data.data;
+                            this.items = response.data.data;
                             this.currentPage = response.data.meta.current_page;
                             this.lastPage = response.data.meta.last_page;
                             this.pagination = response.data.meta.links;
@@ -243,13 +243,15 @@
                 this.edited_meal.edit_meal = item;
                 this.fetchItems();
             },
-            fetchItems(page_url) {
+            fetchItems() {
                 let vm = this;
-                page_url = page_url || "/api/items";
-                axios.get(page_url).then(function (response) {
+                this.url = "/api/items";
+                axios.get("/api/items").then(function (response) {
                     // handle success
                     vm.items = response.data.data;
-                    vm.makePagination(response.data.meta, response.data.links);
+                    vm.currentPage = response.data.meta.current_page;
+                    vm.lastPage = response.data.meta.last_page;
+                    vm.pagination = response.data.meta.links;
                 })
                     .catch(function (error) {
                         // handle error

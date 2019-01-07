@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 define('YOUR_SERVER_URL', "http://oldbutgold.me");
 // Check "oauth_clients" table for next 2 values:
 define('CLIENT_ID', '2');
-define('CLIENT_SECRET', 'KnRLUyBEIbMiN18y6hwZkQYEEw1L4cGf7DsoBLJf');
+define('CLIENT_SECRET', 'RJJrbdr0wZFe9nyGNFXNCTF3actPrR4JXqppd0Oh');
 use Auth;
 use Illuminate\Http\Request;
 

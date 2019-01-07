@@ -29,8 +29,8 @@ var io = require("socket.io")(app);
 
 var LoggedUsers = require("./loggedusers.js");
 
-app.listen(9999, function() {
-  console.log("listening on *:9999");
+app.listen(8080, function() {
+  console.log("listening on *:8080");
 });
 
 let loggedUsers = new LoggedUsers();

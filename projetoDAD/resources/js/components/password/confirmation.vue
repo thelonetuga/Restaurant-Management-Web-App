@@ -92,13 +92,14 @@
         },
         methods: {
             resetPassword(){
+		let vm = this;
                 axios
                     .post("api/password/reset", this.passConfirmation)
                     .then(response => {
                         console.log(response.data);
                         console.log('Reset Success');
                         vm.$toasted.show('Reset Success');
-                        this.$router.push('/logout');
+                        vm.$router.push('/');
                     })
                     .catch(error => {
 

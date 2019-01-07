@@ -28,7 +28,7 @@ Vue.use(jsPDF);
 //Vue.use(Chat);
 Vue.use(new VueSocketio({
     debug: true,
-    connection: 'http://127.0.0.1:9999'
+    connection: 'http://oldbutgold.me:8080'
 }));
 
 Vue.use(Toasted, {

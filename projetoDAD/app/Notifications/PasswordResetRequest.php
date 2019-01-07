@@ -35,7 +35,7 @@ class PasswordResetRequest extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-                $url = url('http://projeto.ei/#/password/confirmation?test='.$this->token);
+                $url = url('http://oldbutgold.me/#/password/confirmation?test='.$this->token);
         return (new MailMessage)
             ->line('You are receiving this email because we create one account for you.')
             ->action('Confirm your Password', url($url))

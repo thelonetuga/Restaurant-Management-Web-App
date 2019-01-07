@@ -24,6 +24,7 @@
                                         type="email"
                                         v-model="user.email"
                                         :rules="emailRules"
+					disabled
                                 >{{user.email}}
                                 </v-text-field>
                             </v-flex>
